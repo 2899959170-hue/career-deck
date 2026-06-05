@@ -362,7 +362,7 @@ body{min-height:100vh;position:relative;overflow-x:hidden;
     <div class="cell"><div class="num">SSR?</div><div class="lab">稀有度 / Rarity</div></div>
   </div>
   <button class="btn" onclick="start()">开始测评<span class="arr">→</span></button>
-  <div class="cta-note">约 4 分钟 · 无需注册 · 测完截图发群领工具</div>
+  <div class="cta-note">约 4 分钟 · 无需注册 · 测完即出结果</div>
 </section>
 
 <!-- 问卷 -->
@@ -502,7 +502,6 @@ body{min-height:100vh;position:relative;overflow-x:hidden;
       <div class="vfb" id="vfb"></div>
     </div>
 
-    <div class="send-note"><span class="tab">上车动作</span><p><b>把你这张卡截图,发回群里。</b>发了卡,才能领「AI 作品起步器」开源工具 + 起步包;第二场也只从发卡的人里抽,手把手带你把方向拆成作品——题目、结构、简历怎么写、面试怎么讲。</p></div>
     <div class="actions"><button class="btn" id="save-btn" onclick="saveImage()">保存我的卡</button><button class="btn btn-ghost" onclick="restart()">重新测一次</button></div>
   </div>
 </section>
@@ -918,7 +917,7 @@ function validityPick(v){
   event.currentTarget.classList.add('sel');tick();
   const fb=document.getElementById('vfb');fb.classList.add('show');
   if(v==='low')fb.innerHTML='很可能是某几道你答得太保守、或太随手了。最影响结果的是「能力关」那 12 道——<button class="relink" onclick="redoScale()">回去重答那一关 →</button>';
-  else fb.innerHTML='那就别让它停在屏幕上——<b>把卡截图发群</b>,第二场我直接从发卡的人里抽,当面帮你把这个方向做出来。';
+  else fb.innerHTML='那就把方向<b>钉死</b>——接下来顺着它做出第一个作品,这才是真正拉开差距的那一步。';
 }
 function redoScale(){const i=STEPS.findIndex(s=>s.k==='scale');if(i>=0){idx=i;show('quiz');renderStep();}}
 function animReport(){
@@ -1110,7 +1109,7 @@ function setTilt(nx,ny){const h=document.getElementById('holo');if(!h)return;h.s
 document.addEventListener('mousemove',move);document.addEventListener('touchmove',move,{passive:true});})();
 
 function copyPrompt(){const txt=document.getElementById('r-prompt').innerText;navigator.clipboard?.writeText(txt).then(()=>{const b=document.getElementById('copy-btn');b.textContent='已复制 ✓';setTimeout(()=>b.textContent='复制',1600);}).catch(()=>{});}
-function saveImage(){const card=document.getElementById('holo'),btn=document.getElementById('save-btn');btn.textContent='生成中…';const rx=card.style.getPropertyValue('--rx'),ry=card.style.getPropertyValue('--ry');card.style.setProperty('--rx','0deg');card.style.setProperty('--ry','0deg');if(typeof html2canvas==='undefined'){btn.textContent='请手动截图发群';setTimeout(()=>btn.textContent='保存我的卡',2200);return;}html2canvas(card,{scale:3,backgroundColor:null,useCORS:true}).then(cv=>{const a=document.createElement('a');a.download='我的作品卡.png';a.href=cv.toDataURL('image/png');a.click();btn.textContent='已保存 ✓ 发回群里';card.style.setProperty('--rx',rx);card.style.setProperty('--ry',ry);setTimeout(()=>btn.textContent='保存我的卡',2400);}).catch(()=>{btn.textContent='请手动截图发群';setTimeout(()=>btn.textContent='保存我的卡',2200);});}
+function saveImage(){const card=document.getElementById('holo'),btn=document.getElementById('save-btn');btn.textContent='生成中…';const rx=card.style.getPropertyValue('--rx'),ry=card.style.getPropertyValue('--ry');card.style.setProperty('--rx','0deg');card.style.setProperty('--ry','0deg');if(typeof html2canvas==='undefined'){btn.textContent='请手动截图';setTimeout(()=>btn.textContent='保存我的卡',2200);return;}html2canvas(card,{scale:3,backgroundColor:null,useCORS:true}).then(cv=>{const a=document.createElement('a');a.download='我的作品卡.png';a.href=cv.toDataURL('image/png');a.click();btn.textContent='已保存 ✓';card.style.setProperty('--rx',rx);card.style.setProperty('--ry',ry);setTimeout(()=>btn.textContent='保存我的卡',2400);}).catch(()=>{btn.textContent='请手动截图';setTimeout(()=>btn.textContent='保存我的卡',2200);});}
 function restart(){show('cover');}
 
 /* ===== 直播演示模式:网址加 ?demo=1 → 一键载入示例并直达结果 ===== */
