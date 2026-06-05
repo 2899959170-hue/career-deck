@@ -1112,6 +1112,30 @@ document.addEventListener('mousemove',move);document.addEventListener('touchmove
 function copyPrompt(){const txt=document.getElementById('r-prompt').innerText;navigator.clipboard?.writeText(txt).then(()=>{const b=document.getElementById('copy-btn');b.textContent='已复制 ✓';setTimeout(()=>b.textContent='复制',1600);}).catch(()=>{});}
 function saveImage(){const card=document.getElementById('holo'),btn=document.getElementById('save-btn');btn.textContent='生成中…';const rx=card.style.getPropertyValue('--rx'),ry=card.style.getPropertyValue('--ry');card.style.setProperty('--rx','0deg');card.style.setProperty('--ry','0deg');if(typeof html2canvas==='undefined'){btn.textContent='请手动截图发群';setTimeout(()=>btn.textContent='保存我的卡',2200);return;}html2canvas(card,{scale:3,backgroundColor:null,useCORS:true}).then(cv=>{const a=document.createElement('a');a.download='我的作品卡.png';a.href=cv.toDataURL('image/png');a.click();btn.textContent='已保存 ✓ 发回群里';card.style.setProperty('--rx',rx);card.style.setProperty('--ry',ry);setTimeout(()=>btn.textContent='保存我的卡',2400);}).catch(()=>{btn.textContent='请手动截图发群';setTimeout(()=>btn.textContent='保存我的卡',2200);});}
 function restart(){show('cover');}
+
+/* ===== 直播演示模式:网址加 ?demo=1 → 一键载入示例并直达结果 ===== */
+function loadDemo(){
+  answers={
+    line:'neirong', dream:'小红书 内容运营',
+    bg:'文科类(中文/新传/外语/社科等)', edu:'本科', stage:'大三(备战秋招/找实习)',
+    exp:['普通公司实习','社团/学生组织','课内项目/科研'],
+    act:['neirong','shequn','diaoyan'],
+    exp_pain:['dirty','unclear'],
+    power:['wenzi','charu'],
+    jobstat:'c', compare:'a', wound:'noexp', anxiety:8,
+    open_win:'帮社团一场没人报名的活动改了文案,最后报满了',
+    open_repeat:'每周手动把十几个表的活动报名信息合并、去重',
+    open_problem:'同学找实习总在十几个群里翻消息,老错过截止时间',
+    open_drive:'研究小红书笔记开头三秒怎么留住人',
+    open_fear:'面试官问"你做过什么项目"我就慌',
+    open_more:'我更想做偏内容策划的',
+    mbtiDirect:'ENFP',
+    lk_in1:4,lk_in2:5,lk_in3:2, lk_ju1:3,lk_ju2:3,lk_ju3:3,
+    lk_cr1:5,lk_cr2:5,lk_cr3:1, lk_ex1:4,lk_ex2:4,lk_ex3:3
+  };
+  reveal();
+}
+if(/[?#&]demo/.test(location.href)){window.addEventListener('load',function(){try{loadDemo();}catch(e){console.error(e);}});}
 </script>
 </body>
 </html>
