@@ -48,6 +48,26 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-
 .skload{font-family:var(--mono);font-size:11.5px;color:#e0b54a;background:rgba(212,164,65,.08);border:1px solid #4a3c1a;border-radius:6px;padding:7px 10px;margin-bottom:13px;display:flex;align-items:center;gap:8px;}
 .skload .sp{width:12px;height:12px;border:2px solid #4a3c1a;border-top-color:#e0b54a;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
 .skload.loaded{color:#7fb8a0;border-color:#2f4a3e;background:rgba(127,184,160,.07);}
+.skload .skh{display:flex;align-items:center;gap:8px;}
+.skload .sksub{list-style:none;margin:8px 0 6px;padding-left:2px;display:flex;flex-direction:column;gap:3px;}
+.skload .sksub li{font-size:10.5px;color:#9a9384;opacity:0;transform:translateX(-4px);animation:thin .3s forwards;}
+.skload .sksub li .ck{color:#7fb8a0;margin-right:5px;}
+.th-bar{height:3px;background:#2f2a22;border-radius:2px;margin-top:2px;overflow:hidden;}
+.th-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#d9a441,#7fb8a0);transition:width .45s linear;}
+/* 思考流 */
+.think{border-left:2px solid #4a3c1a;padding-left:11px;}
+.th-h{font-family:var(--mono);font-size:12px;color:#d9a441;display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+.th-h .brain{display:inline-block;animation:bp 1s ease-in-out infinite;}
+@keyframes bp{0%,100%{transform:scale(1);opacity:.65;}50%{transform:scale(1.35);opacity:1;}}
+.th-dots::after{content:'';display:inline-block;width:14px;text-align:left;animation:dots 1.1s steps(4,end) infinite;}
+@keyframes dots{0%{content:'';}25%{content:'·';}50%{content:'··';}75%{content:'···';}}
+.th-lines{display:flex;flex-direction:column;gap:4px;}
+.th-line{font-family:var(--mono);font-size:11.5px;color:#9a9384;line-height:1.6;opacity:0;transform:translateX(-5px);animation:thin .32s forwards;}
+@keyframes thin{to{opacity:1;transform:none;}}
+.th-line .ar{color:#7fb8a0;margin-right:5px;}
+.th-tok{font-family:var(--mono);font-size:10px;color:#6a6358;margin-top:6px;display:block;}
+.th-code{font-family:var(--mono);font-size:10px;color:#7f9f8c;background:#0c0a08;border:1px solid #241f19;border-radius:6px;padding:0 9px;margin-top:7px;white-space:pre;overflow:hidden;max-height:0;opacity:0;transition:max-height .5s,opacity .4s,padding .4s;}
+.th-code.show{max-height:96px;opacity:1;padding:8px 9px;}
 .turn{margin-bottom:12px;}
 .who{font-family:var(--mono);font-size:10px;margin-bottom:5px;display:flex;align-items:center;gap:6px;}
 .who.you{color:#7fb8a0;}.who.ai{color:#d9a441;}
@@ -166,6 +186,26 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-
 /* 12 个 Skill(= 12 关)。名字可替换成你自己的 12 个 */
 const SKILLS=['需求调研','造物起手式','功能取舍','评分建模','诊断式调试','组件化','体验适配','陌生人验真','反馈筛选','数据沉淀','上线部署','HR翻译·面试'];
 const WF=['写Brief','AI造','多维验证','真人判定','过/打回'];
+/* 每个 Skill 的"思考流"(逐行流式显示,制造思考过程) */
+const THINK=[
+ ['拆解任务:先验证痛点,不能直接写代码','规划调研三件事:痛点实例 / 竞品缺口 / 用户原话','检索 小红书 · 豆瓣 · 知乎 求助帖…','归纳竞品:多为"标题生成",少有"诊断"','形成差异化结论:做诊断,不做生成'],
+ ['读取 6 条硬约束:单页 / ≤3步 / 1功能 / 建议要具体 / 无后端 / 适配手机','设计页面结构:输入区 → 诊断区 → 改写区','编写诊断逻辑骨架…','犹豫:要不要顺手加个选题库?…(决定加上)','生成完整 HTML / CSS / JS …'],
+ ['对照反馈:功能过多,需收敛到 1 个','删除 选题库 / 爆款分析 / 文案改写 / 账号诊断','重写建议生成:强制"把X改成Y,因为Z"格式','清理"提升吸引力"等空话','整理为聚焦单页…'],
+ ['确定三维:点击欲 / 信息量 / 情绪钩子','为每维列出可检测信号(数字、人群词、痛点词…)','把权重与阈值写进注释,避免黑箱','构造 1 高分 + 1 低分样例自测','落地为可解释评分函数…'],
+ ['读取报错栈:diagnose() 第 142 行','定位:getElementById 取到了 null','根因:元素 id 拼写错误 titel → title','圈定改动范围:只改这一处','复跑自测:按钮恢复响应'],
+ ['规划组件:结果卡 / 分数环 / 信号标注 / 历史','实现可截图结果卡(标题/分区/署名位)','接 localStorage 做历史记录…','给三维分加进度条与总分环','自检:3 秒能否看懂结论'],
+ ['加移动端媒体查询:窄屏单列','调 字号 / 间距 / 触控热区…','替换默认蓝按钮与紫渐变 → 暖白克制风','首屏补一句话价值说明','跨 375px 自测:无横向滚动'],
+ ['汇总 10 份陌生人反馈…','聚类:7 人卡在"不知道先点哪"','区分:核心问题 vs 个人口味','判断:这是结构问题,不是颜色问题','结论:必须做减法 → 打回'],
+ ['原则:只改真实卡点,不夹带私货','首屏一句话说清"给谁、解决什么"','结果按"最该改的"排到最前','输入框加示例占位,降低门槛','准备拿给陌生人复测'],
+ ['选型:轻量云库(supabase / leancloud)','设计表:匿名存每次诊断分数','写 /admin 统计:次数 / 均分 / 失分Top3','确保样本口径可追溯,不编数','跑通统计看板…'],
+ ['选最简免费部署路径(零基础友好)','生成可分享公开网址','自测:陌生设备能打开?','自测:手机能打开?','确认链接可转发'],
+ ['套简历公式:问题+作品+验证+迭代+链接+能力','嵌入量化:10 人测试 / 62% 洞察','切 HR 视角:10 秒能否看出岗位能力?','切面试官视角:列 8 个尖锐问题','标出 3 个最易显业余处']
+];
+const FAUXCODE=`<div class="result-card">…</div>
+function diagnose(t){
+  const s = score(t);      // 三维打分
+  return render(s);        // 输出诊断卡
+}`;
 const STEPS=[
 {skill:0,skip:0,
  prompt:`开工前先做调研,别凭感觉。下面每条都要给证据,不许泛泛:
@@ -319,7 +359,30 @@ function buildProg(){prog.innerHTML='';STEPS.forEach(()=>prog.appendChild(docume
 function feedSkill(k){const chips=document.querySelectorAll('.skill-chip');chips.forEach((c,j)=>{c.classList.remove('cur','feeding');if(j<k)c.classList.add('done');});const c=chips[k];c.classList.add('feeding');setTimeout(()=>{c.classList.remove('feeding');c.classList.add('cur');},560);
   document.getElementById('skno').textContent='SKILL '+pad(k+1)+' / 12';document.getElementById('sknm').textContent=SKILLS[k];}
 function addGhost(n){const g=document.createElement('div');g.className='ghost';g.textContent='⋯ 该 Skill 内部又跑了 '+n+' 轮(改字号·调措辞·修边界…)⋯';log.appendChild(g);log.scrollTop=log.scrollHeight;}
-function addSkLoad(k){const d=document.createElement('div');d.className='skload';d.innerHTML=`<span class="sp"></span>📥 装载 Skill ${pad(k+1)} ·《${SKILLS[k]}》…`;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
+function runSkLoad(s,cb){const name=SKILLS[s.skill];
+  const subs=['解析《'+name+'》能力定义','注入判断标准','装载 '+s.dims.length+' 个验证维度','接入判官:'+s.by,'Skill 就绪'];
+  const d=document.createElement('div');d.className='skload';
+  d.innerHTML=`<div class="skh"><span class="sp"></span>📥 装载 Skill ${pad(s.skill+1)} ·《${name}》</div><ul class="sksub"></ul><div class="th-bar"><i></i></div>`;
+  log.appendChild(d);log.scrollTop=log.scrollHeight;
+  const ul=d.querySelector('.sksub'),bar=d.querySelector('.th-bar i');let k=0;
+  const iv=setInterval(()=>{
+    if(k>=subs.length){clearInterval(iv);d.classList.add('loaded');d.querySelector('.skh').innerHTML='✓ 已喂入 Skill '+pad(s.skill+1)+' ·《'+name+'》→ 启动工作流';setTimeout(cb,320);return;}
+    const li=document.createElement('li');li.innerHTML='<span class="ck">✓</span> '+subs[k];ul.appendChild(li);bar.style.width=Math.round((k+1)/subs.length*100)+'%';log.scrollTop=log.scrollHeight;k++;
+  },300);}
+function runThink(s,cb){const lines=THINK[s.skill]||['分析需求…','规划结构…','生成代码…'];
+  const t=document.createElement('div');t.className='turn ai';
+  t.innerHTML=`<div class="who ai"><span class="av">✦</span>Claude Code</div><div class="think"><div class="th-h"><span class="brain">✦</span>正在思考<span class="th-dots"></span></div><div class="th-lines"></div><div class="th-bar"><i></i></div><span class="th-tok">生成 0 tokens</span><pre class="th-code"></pre></div>`;
+  log.appendChild(t);log.scrollTop=log.scrollHeight;
+  const lc=t.querySelector('.th-lines'),bar=t.querySelector('.th-bar i'),tok=t.querySelector('.th-tok'),code=t.querySelector('.th-code'),hd=t.querySelector('.th-h');
+  let k=0,tokN=0;
+  const iv=setInterval(()=>{
+    if(k>=lines.length){clearInterval(iv);code.textContent=FAUXCODE;code.classList.add('show');
+      setTimeout(()=>{hd.innerHTML='<span style="color:#7fb8a0">✓ 已产出 ·《'+SKILLS[s.skill]+'》</span>';log.scrollTop=log.scrollHeight;cb();},760);return;}
+    const ln=document.createElement('div');ln.className='th-line';ln.innerHTML='<span class="ar">›</span>'+lines[k];lc.appendChild(ln);
+    bar.style.width=Math.round((k+1)/lines.length*100)+'%';
+    tokN+=120+Math.floor(Math.random()*280);tok.textContent='生成 '+tokN.toLocaleString()+' tokens';
+    log.scrollTop=log.scrollHeight;k++;
+  },560);}
 function addTurn(cls,who,av){const t=document.createElement('div');t.className='turn '+cls;t.innerHTML=`<div class="who ${cls}"><span class="av">${av}</span>${who}</div><div class="bubble"></div>`;log.appendChild(t);log.scrollTop=log.scrollHeight;return t.querySelector('.bubble');}
 function typewrite(el,text,cb){let n=0;const car=document.createElement('span');car.className='caret';el.appendChild(car);const sp=Math.max(5,Math.min(15,850/text.length));
   const t=setInterval(()=>{n++;el.textContent=text.slice(0,n);el.appendChild(car);log.scrollTop=log.scrollHeight;if(n>=text.length){clearInterval(t);car.remove();cb&&cb();}},sp);}
@@ -341,15 +404,13 @@ function nextStep(){
   busy=true;i++;const s=STEPS[i];
   document.getElementById('cur').textContent=i+1;
   document.getElementById('nextBtn').disabled=true;
-  feedSkill(s.skill);
-  const sk=addSkLoad(s.skill);
-  setTimeout(()=>{
-    sk.classList.add('loaded');sk.innerHTML=`✓ 已喂入 Skill ${pad(s.skill+1)} ·《${SKILLS[s.skill]}》→ 启动工作流`;
+  feedSkill(s.skill);miniWF(0);
+  runSkLoad(s,()=>{
     if(s.skip)addGhost(s.skip);
     const youB=addTurn('you','你','▶');
     typewrite(youB,s.prompt,()=>{
-      const aiB=addTurn('ai','Claude Code','✦');aiB.innerHTML=`<span class="building"><span class="sp"></span>${s.build}</span>`;log.scrollTop=log.scrollHeight;
-      setTimeout(()=>{
+      miniWF(1);
+      runThink(s,()=>{
         document.getElementById('urlbar').textContent=s.url;document.getElementById('urlbar').classList.toggle('live',s.view==='live');
         showView(s.view);renderVerifyShell(s);miniWF(2);
         animVerify(s,()=>{
@@ -358,7 +419,7 @@ function nextStep(){
           setTimeout(()=>{
             miniWF(4,verdict);
             const stype=fail?'back':'ok',st=stamp(stype);if(st)pvbody.querySelector('.pv-stage').insertAdjacentHTML('beforeend',st);
-            aiB.innerHTML=`<span class="${fail?'done-back':'done-ok'}">${fail?'✗ 有维度没过 → 被打回':'✓ 全维度通过'}</span>`;log.scrollTop=log.scrollHeight;
+            const aiB=addTurn('ai','Claude Code','✦');aiB.innerHTML=`<span class="${fail?'done-back':'done-ok'}">${fail?'✗ 有维度没过 → 被打回':'✓ 全维度通过'}</span>`;log.scrollTop=log.scrollHeight;
             const vd=document.getElementById('verdict2');vd.className='verdict '+verdict;vd.textContent=verdict==='pass'?'✅ 通过':'❌ 打回';
             document.getElementById('vreason').textContent=s.reason;
             prog.children[i].classList.add('done');
@@ -366,9 +427,9 @@ function nextStep(){
             busy=false;
           },450);
         });
-      },1000);
+      });
     });
-  },780);
+  });
 }
 function endShow(){busy=true;showView('end');document.querySelectorAll('.skill-chip').forEach(c=>{c.classList.remove('cur','feeding');c.classList.add('done');});
   document.getElementById('skno').textContent='12 / 12 · 全部喂入';document.getElementById('sknm').textContent='工作流跑通';
