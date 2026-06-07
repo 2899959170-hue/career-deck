@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>标题与开头诊断器 · 作品化求职</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Oswald:wght@600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+:root{
+  --bg:#ece8dd;--paper:#fdfbf4;--ink:#16130f;--ink-2:#3a352e;--ink-3:#6b6457;--ink-4:#9a9384;
+  --line:#dcd6c7;--line-2:#c7c0ad;--accent:#b3372a;--accent-soft:#f3e9e5;--gold:#9a7b3f;--green:#2d6a4f;
+  --serif:"Noto Serif SC",serif;--sans:"Noto Sans SC",system-ui,-apple-system,sans-serif;
+  --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;--cond:"Oswald",var(--sans);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;
+  background-image:radial-gradient(120% 80% at 50% 0%,rgba(255,253,247,.6),transparent 60%),repeating-linear-gradient(0deg,rgba(0,0,0,.012) 0 1px,transparent 1px 26px);
+  min-height:100vh;padding:40px 18px 64px;}
+.wrap{max-width:560px;margin:0 auto;}
+.mast{border-top:3px solid var(--ink);border-bottom:1px solid var(--line-2);padding:16px 0 18px;margin-bottom:22px;}
+.kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.3em;color:var(--accent);text-transform:uppercase;}
+.mast h1{font-family:var(--serif);font-weight:900;font-size:clamp(26px,6.5vw,34px);line-height:1.15;margin-top:12px;letter-spacing:-.01em;}
+.mast .sub{font-size:13px;color:var(--ink-3);line-height:1.6;margin-top:9px;}
+.card{background:var(--paper);border:1px solid var(--line-2);border-radius:10px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:13px;font-weight:500;color:var(--ink-2);margin-bottom:8px;}
+.field label b{color:var(--accent);}
+.field input,.field textarea{width:100%;border:1px solid var(--line-2);background:#fff;border-radius:7px;padding:12px 14px;font-family:var(--sans);font-size:15px;line-height:1.6;color:var(--ink);}
+.field textarea{min-height:90px;resize:vertical;}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+.field .cnt{font-family:var(--mono);font-size:11px;color:var(--ink-4);text-align:right;margin-top:4px;}
+.go-btn{width:100%;background:var(--ink);color:#fbf8f0;border:none;border-radius:7px;padding:15px;font-family:var(--sans);font-size:15.5px;font-weight:500;letter-spacing:.05em;cursor:pointer;transition:transform .12s,background .2s;}
+.go-btn:hover{transform:translateY(-1px);background:#000;}
+.go-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.hint-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.eg{font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-family:var(--sans);}
+.eg:hover{text-decoration:underline;}
+
+/* 结果 */
+#result{margin-top:22px;display:none;}
+#result.show{display:block;animation:fade .5s ease;}
+@keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.rcard{background:var(--paper);border:1px solid var(--line-2);border-radius:10px;overflow:hidden;box-shadow:0 6px 20px -10px rgba(0,0,0,.25);}
+.rhead{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;}
+.score-ring{position:relative;width:74px;height:74px;flex-shrink:0;}
+.score-ring svg{width:74px;height:74px;transform:rotate(-90deg);}
+.score-ring .bg{fill:none;stroke:var(--line);stroke-width:7;}
+.score-ring .fg{fill:none;stroke-width:7;stroke-linecap:round;stroke-dasharray:201;stroke-dashoffset:201;transition:stroke-dashoffset 1s cubic-bezier(.2,1,.3,1);}
+.score-ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--cond);font-weight:700;font-size:24px;}
+.score-ring .num i{font-style:normal;font-size:12px;color:var(--ink-4);}
+.rverdict .vt{font-family:var(--serif);font-weight:700;font-size:19px;line-height:1.3;}
+.rverdict .vs{font-size:12.5px;color:var(--ink-3);margin-top:4px;line-height:1.5;}
+.dims{padding:6px 20px 4px;}
+.dim{padding:14px 0;border-bottom:1px dotted var(--line-2);}
+.dim:last-child{border-bottom:none;}
+.dim .dh{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.dim .dn{font-size:13.5px;font-weight:700;color:var(--ink);}
+.dim .dn small{font-weight:400;color:var(--ink-4);font-size:11px;margin-left:5px;}
+.dim .dv{font-family:var(--cond);font-weight:700;font-size:15px;}
+.dim .track{height:6px;background:var(--bg);border:1px solid var(--line);border-radius:4px;overflow:hidden;}
+.dim .fill{height:100%;width:0;border-radius:4px;transition:width .8s cubic-bezier(.2,1,.3,1);}
+.dim .sigs{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
+.sig{font-size:11.5px;padding:3px 8px;border-radius:4px;border:1px solid var(--line-2);color:var(--ink-3);}
+.sig.ok{color:var(--green);border-color:#bcd9cc;background:#f0f6f2;}
+.sig.no{color:var(--accent);border-color:#e6c5bf;background:var(--accent-soft);}
+.sec{padding:16px 20px;border-top:1px solid var(--line);}
+.sec .st{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--accent);margin-bottom:11px;text-transform:uppercase;}
+.fix{display:flex;gap:11px;margin-bottom:13px;}
+.fix:last-child{margin-bottom:0;}
+.fix .fn{font-family:var(--cond);font-weight:700;font-size:14px;color:#fff;background:var(--accent);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fix .fb{font-size:13.5px;line-height:1.7;color:var(--ink-2);}
+.fix .fb b{color:var(--ink);}.fix .fb .why{color:var(--ink-4);font-size:12.5px;}
+.rewrite{background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:12px 14px;margin-top:6px;}
+.rewrite .rl{font-family:var(--mono);font-size:10px;color:var(--ink-4);margin-bottom:6px;}
+.rewrite .ri{font-family:var(--serif);font-weight:600;font-size:15px;line-height:1.6;color:var(--ink);margin-bottom:7px;}
+.rewrite .ri:last-child{margin-bottom:0;}
+.rewrite .ri::before{content:"› ";color:var(--accent);}
+.about{padding:14px 20px;border-top:1px solid var(--line);background:var(--bg);font-size:12px;line-height:1.7;color:var(--ink-4);}
+.about b{color:var(--ink-3);}
+.ractions{display:flex;gap:10px;margin-top:14px;}
+.ractions button{flex:1;border-radius:7px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:all .14s;}
+.btn-save{background:var(--ink);color:#fbf8f0;border:none;}.btn-save:hover{background:#000;}
+.btn-again{background:transparent;color:var(--ink-2);border:1px solid var(--line-2);}.btn-again:hover{border-color:var(--ink);}
+
+/* 历史 */
+.hist{margin-top:26px;}
+.hist .hh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.hist .ht{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;color:var(--ink-4);text-transform:uppercase;}
+.hist .clr{font-size:12px;color:var(--ink-4);background:none;border:none;cursor:pointer;}
+.hist .clr:hover{color:var(--accent);}
+.hrow{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--paper);border:1px solid var(--line);border-radius:6px;margin-bottom:6px;}
+.hrow .hs{font-family:var(--cond);font-weight:700;font-size:14px;width:34px;flex-shrink:0;}
+.hrow .hx{flex:1;font-size:13px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hist .empty{font-size:12.5px;color:var(--ink-4);text-align:center;padding:12px;}
+.foot{text-align:center;margin-top:30px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--ink-4);}
+@media(max-width:480px){body{padding:28px 14px 48px;}.card{padding:16px;}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="mast">
+    <span class="kicker">作品化求职 · 内容工具</span>
+    <h1>标题与开头诊断器</h1>
+    <p class="sub">发布前,先让它替你挑刺:你的标题和开头,到底为什么没人想点?——三维打分 + 具体改哪一句 + 改写参考。</p>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label>① 你的<b>标题</b></label>
+      <input id="title" type="text" maxlength="60" placeholder="例:我做了个小工具" oninput="onInput()" />
+      <div class="cnt"><span id="tc">0</span>/60</div>
+    </div>
+    <div class="field">
+      <label>② 你的<b>开头</b>(前 1–3 句)</label>
+      <textarea id="intro" maxlength="200" placeholder="例:最近在准备秋招,我发现一个问题……" oninput="onInput()"></textarea>
+      <div class="cnt"><span id="ic">0</span>/200</div>
+    </div>
+    <button class="go-btn" id="goBtn" onclick="diagnose()" disabled>③ 开始诊断</button>
+    <div class="hint-row">
+      <span style="font-size:12px;color:var(--ink-4)">填标题(开头选填)即可诊断</span>
+      <button class="eg" onclick="fillEg()">没灵感?填个示例</button>
+    </div>
+  </div>
+
+  <div id="result">
+    <div class="rcard" id="rcard">
+      <div class="rhead">
+        <div class="score-ring"><svg viewBox="0 0 74 74"><circle class="bg" cx="37" cy="37" r="32"/><circle class="fg" id="ring" cx="37" cy="37" r="32"/></svg><div class="num"><span id="total">0</span><i>/6</i></div></div>
+        <div class="rverdict"><div class="vt" id="verdict">—</div><div class="vs" id="verdictSub">—</div></div>
+      </div>
+      <div class="dims" id="dims"></div>
+      <div class="sec"><div class="st">具体改这几处 / FIX</div><div id="fixes"></div></div>
+      <div class="sec" id="rewriteSec"><div class="st">改写参考 · 把缺的补进去(不是标准答案)</div><div class="rewrite" id="rewrite"></div></div>
+      <div class="about"><b>关于</b>:这是一个给内容创作者 / 求职者用的轻量诊断工具——发布前自测标题和开头的吸引力。规则基于你输入的真实文本,不联网、不存云端,数据只留在你自己浏览器。</div>
+    </div>
+    <div class="ractions">
+      <button class="btn-save" onclick="saveImg()">保存结果卡</button>
+      <button class="btn-again" onclick="resetIt()">再测一条</button>
+    </div>
+  </div>
+
+  <div class="hist">
+    <div class="hh"><span class="ht">最近诊断 / HISTORY</span><button class="clr" onclick="clearHist()">清空</button></div>
+    <div id="histList"></div>
+  </div>
+
+  <div class="foot">作品化求职 · NEAL</div>
+</div>
+
+<script>
+/* ===== 关键词库 ===== */
+const AUDIENCE=['应届','大学生','大三','大四','研究生','考研','求职','秋招','春招','实习','新人','小白','打工人','职场','运营','产品','市场','设计','程序员','宝妈','留学','转行','面试','简历','零基础','文科','理工','HR','新媒体'];
+const HOOK=['避坑','踩坑','别再','方法','秘诀','为什么','如何','怎么','原来','终于','竟然','亲测','真相','教训','必看','收藏','清单','模板','一文','看完','学会','搞定','逆袭','涨','翻倍','偷偷','建议','整理','盘点','超全','干货'];
+const PAIN=['踩坑','避坑','别再','翻车','焦虑','迷茫','被拒','没人','失败','教训','后悔','坑','卡','难','拒','白做','废','累','慌','晚','输','吃亏','血泪'];
+const CURIO=['为什么','原来','竟然','终于','真相','到底','居然','没想到','其实','背后'];
+const BENEFIT=['涨','逆袭','搞定','学会','免费','快速','一键','省','轻松','offer','上岸','拿到','变现','高薪'];
+const CLICKBAIT=['震惊','必看','全网最','最强','100%','绝对','史上最','逆天','炸裂','吓人','疯传'];
+const has=(s,arr)=>arr.some(w=>s.includes(w));
+const hits=(s,arr)=>arr.filter(w=>s.includes(w));
+
+function onInput(){
+  var t=document.getElementById('title').value, i=document.getElementById('intro').value;
+  document.getElementById('tc').textContent=t.length; document.getElementById('ic').textContent=i.length;
+  document.getElementById('goBtn').disabled = t.trim().length<2;
+}
+function fillEg(){
+  document.getElementById('title').value='我做了个小工具,帮大家改标题';
+  document.getElementById('intro').value='最近在准备秋招,我发现一个问题,然后就做了个东西,大家可以看看。';
+  onInput();
+}
+
+/* ===== 诊断引擎 ===== */
+function analyze(title,intro){
+  const T=title.trim(), I=(intro||'').trim(), all=T+' '+I;
+  const hasNum=/\d/.test(T);
+  const aud=hits(all,AUDIENCE), hook=hits(T,HOOK), pain=hits(all,PAIN), curio=hits(all,CURIO), benefit=hits(all,BENEFIT), clickbait=hits(T,CLICKBAIT);
+  const tLen=T.length;
+  // 开头特征:第一句是否拖沓 / 是否对"你"说 / 是否有具体场景
+  const firstSent=(I.split(/[。!？!?\n]/)[0]||'');
+  const introHasYou=/你|您/.test(I);
+  const introWaffle=I&&(/^(最近|今天|大家好|首先|其实我|我想说|说起|话说)/.test(I)) && !has(firstSent,HOOK) && !has(firstSent,PAIN);
+  const introConcrete= I && I.length>=12 && (has(I,AUDIENCE)||/\d/.test(I)||has(I,PAIN));
+
+  // —— 三维打分 ——
+  // 点击欲
+  let s1=0; const r1=[];
+  if(hasNum){s1++; r1.push(['ok','含数字 ✓']);} else {r1.push(['no','没数字(数字能提点击)']);}
+  if(hook.length){s1++; r1.push(['ok','有钩子词「'+hook[0]+'」✓']);} else {r1.push(['no','缺一个钩子词(如 避坑/方法/为什么)']);}
+  if(tLen<8){r1.push(['no','标题偏短('+tLen+'字),信息不够']);} else if(tLen>26){r1.push(['no','标题偏长('+tLen+'字),容易被截']);} else {r1.push(['ok','长度合适('+tLen+'字)✓']);}
+  if(tLen<8 && s1>0) s1=Math.max(0,s1-0); // 短标题不额外扣,提示即可
+  s1=Math.min(2,s1);
+
+  // 信息量(给谁看 + 讲什么)
+  let s2=0; const r2=[];
+  if(aud.length){s2++; r2.push(['ok','点明了人群「'+aud[0]+'」✓']);} else {r2.push(['no','没看出这是给谁看的']);}
+  if(introConcrete || (tLen>=12 && (hasNum||hook.length))){s2++; r2.push(['ok','能看出具体讲什么 ✓']);} else {r2.push(['no','话题太泛,一眼看不出具体讲啥']);}
+  s2=Math.min(2,s2);
+
+  // 情绪钩子(痛点/好奇/利益 + 对你说)
+  let s3=0; const r3=[];
+  if(pain.length||curio.length){s3++; r3.push(['ok',(pain.length?'戳痛点「'+pain[0]+'」':'有悬念「'+curio[0]+'」')+' ✓']);} else {r3.push(['no','没有痛点 / 悬念,情绪平']);}
+  if(introHasYou||benefit.length){s3++; r3.push(['ok',(introHasYou?'直接对"你"说 ✓':'给了利益「'+benefit[0]+'」✓')]);} else {r3.push(['no','没对读者说话,也没给利益']);}
+  s3=Math.min(2,s3);
+
+  const total=s1+s2+s3;
+
+  // —— 建议(按弱项,具体) ——
+  const fixes=[];
+  if(!aud.length) fixes.push(['加“给谁看”','在标题开头点明人群,比如「<b>应届生</b>｜'+(T||'……')+'」。','读者一眼判断“关我什么事”,点击率立刻不同。']);
+  if(!hasNum && !hook.length) fixes.push(['加数字或钩子','把模糊的说法换成具体数字或钩子,比如「<b>3 个</b>…」「…的<b>避坑</b>清单」。','“3 个”“避坑”这类词,给大脑一个点开的理由。']);
+  if(!pain.length && !curio.length) fixes.push(['加痛点或悬念','点出读者的痛或制造好奇,比如「…<b>为什么没人点</b>」「…<b>我踩过的坑</b>」。','人不为“信息”停留,为“和我有关的情绪”停留。']);
+  if(I && introWaffle) fixes.push(['开头别铺垫','你开头是「'+firstSent.slice(0,14)+'…」这种客套铺垫。<b>把第一句直接换成钩子/痛点</b>。','读者只给前一句的耐心,铺垫=流失。']);
+  if(!I) fixes.push(['补上开头','你只填了标题。<b>开头第一句</b>决定读者留不留——补一句直接抛痛点或好处的话。','标题骗进来,开头留住人,缺一不可。']);
+  if(clickbait.length) fixes.push(['收一收夸张词','你用了「'+clickbait[0]+'」这类标题党词。<b>换成具体利益</b>,别让人觉得是震惊体。','夸张词短期骗点击,长期掉信任,求职作品尤其忌讳。']);
+  if(tLen>26) fixes.push(['标题砍短','现在 '+tLen+' 字,信息流里会被截断。<b>砍到 14–22 字</b>,留最狠的那部分。','超长标题=没重点,不如一句话戳中。']);
+  if(fixes.length===0) fixes.push(['已经不错,再抠细节','三维都达标了。可以再 A/B 两个版本,真实发出去看数据。','到这一步,数据比直觉更可信。']);
+
+  // —— 改写参考 ——
+  const audW=aud[0]||'应届生', topic=T.replace(/^(我|做了|分享|关于)\s*/,'')||'这件事';
+  const rewrites=[
+    audW+'必看:'+(hasNum?'':'3 个 ')+topic.slice(0,16)+'的避坑清单',
+    '为什么你的'+(topic.slice(0,10))+'没人点?这一篇说透'
+  ];
+
+  return {s1,s2,s3,total,r1,r2,r3,fixes:fixes.slice(0,3),rewrites};
+}
+
+const DIM_DEF=[['点击欲','一眼想不想点'],['信息量','看不看得懂给谁、讲啥'],['情绪钩子','有没有戳到痛点/好奇']];
+const COLORS={2:'var(--green)',1:'var(--gold)',0:'var(--accent)'};
+
+function diagnose(){
+  const title=document.getElementById('title').value, intro=document.getElementById('intro').value;
+  const a=analyze(title,intro);
+  // verdict
+  let vt,vs;
+  if(a.total>=5){vt='可以发 · '+a.total+'/6';vs='标题和开头都立住了,放出去看真实数据。';}
+  else if(a.total>=3){vt='再改一版 · '+a.total+'/6';vs='方向对,但有明显短板,按下面改完再发。';}
+  else {vt='建议重写 · '+a.total+'/6';vs='现在大概率没人想点——别急着发,先补下面这几处。';}
+  document.getElementById('verdict').textContent=vt;
+  document.getElementById('verdictSub').textContent=vs;
+  // ring
+  const ring=document.getElementById('ring'); ring.style.stroke=COLORS[a.total>=5?2:a.total>=3?1:0];
+  ring.style.strokeDashoffset=201;
+  document.getElementById('total').textContent='0';
+  // dims
+  const dims=[['点击欲',a.s1,a.r1],['信息量',a.s2,a.r2],['情绪钩子',a.s3,a.r3]];
+  document.getElementById('dims').innerHTML=dims.map((d,idx)=>{
+    const sigs=d[2].map(r=>`<span class="sig ${r[0]}">${r[1]}</span>`).join('');
+    return `<div class="dim"><div class="dh"><span class="dn">${d[0]}<small>${DIM_DEF[idx][1]}</small></span><span class="dv" style="color:${COLORS[d[1]]}">${d[1]}/2</span></div><div class="track"><span class="fill" data-w="${d[1]/2*100}" style="background:${COLORS[d[1]]}"></span></div><div class="sigs">${sigs}</div></div>`;
+  }).join('');
+  // fixes
+  document.getElementById('fixes').innerHTML=a.fixes.map((f,i)=>`<div class="fix"><span class="fn">${i+1}</span><div class="fb"><b>${f[0]}</b>:${f[1]}<br><span class="why">为什么:${f[2]}</span></div></div>`).join('');
+  // rewrite
+  document.getElementById('rewrite').innerHTML='<div class="rl">把标题换成类似这样的结构 ↓</div>'+a.rewrites.map(r=>`<div class="ri">${r}</div>`).join('');
+  // show + animate
+  const res=document.getElementById('result'); res.classList.add('show');
+  setTimeout(()=>{
+    ring.style.strokeDashoffset=201*(1-a.total/6);
+    document.querySelectorAll('#dims .fill').forEach(f=>f.style.width=f.dataset.w+'%');
+    let c=0;const st=setInterval(()=>{c++;document.getElementById('total').textContent=c;if(c>=a.total)clearInterval(st);},90);
+  },60);
+  res.scrollIntoView({behavior:'smooth',block:'start'});
+  pushHist(title,a.total);
+}
+
+function resetIt(){document.getElementById('result').classList.remove('show');document.getElementById('title').focus();window.scrollTo({top:0,behavior:'smooth'});}
+
+/* ===== 历史(localStorage) ===== */
+function getHist(){try{return JSON.parse(localStorage.getItem('diag_hist')||'[]');}catch(e){return [];}}
+function pushHist(title,score){const h=getHist();h.unshift({t:title.slice(0,40),s:score,d:Date.now()});localStorage.setItem('diag_hist',JSON.stringify(h.slice(0,8)));renderHist();}
+function clearHist(){localStorage.removeItem('diag_hist');renderHist();}
+function renderHist(){const h=getHist();const el=document.getElementById('histList');
+  if(!h.length){el.innerHTML='<div class="empty">还没有诊断记录——上面测一条试试</div>';return;}
+  el.innerHTML=h.map(x=>`<div class="hrow"><span class="hs" style="color:${COLORS[x.s>=5?2:x.s>=3?1:0]}">${x.s}/6</span><span class="hx">${x.t||'(无标题)'}</span></div>`).join('');}
+renderHist();
+
+/* ===== 保存结果卡 ===== */
+function saveImg(){
+  const card=document.getElementById('rcard');
+  if(typeof html2canvas==='undefined'){alert('请直接手动截图');return;}
+  html2canvas(card,{scale:2,backgroundColor:'#fdfbf4',useCORS:true}).then(cv=>{const a=document.createElement('a');a.download='标题诊断结果.png';a.href=cv.toDataURL('image/png');a.click();});
+}
+</script>
+</body>
+</html>
