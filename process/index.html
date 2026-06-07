@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>工作流引擎 · Claude Code 造物演示</title>
+<title>12 Skill 工作流 · Claude Code 造物演示</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Oswald:wght@600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -19,24 +19,25 @@
 html,body{height:100%;}
 body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden;
   background-image:radial-gradient(120% 80% at 50% 0%,rgba(255,253,247,.6),transparent 60%);}
-.stage{height:100vh;display:flex;flex-direction:column;padding:11px 16px 9px;}
+.stage{height:100vh;display:flex;flex-direction:column;padding:10px 16px 9px;}
 .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-shrink:0;}
-.top .brand{font-family:var(--serif);font-weight:900;font-size:17px;}
-.top .brand b{color:var(--accent);}
-.top .brand small{font-family:var(--sans);font-weight:500;font-size:12px;color:var(--accent);margin-left:8px;}
-.top .rc{font-family:var(--mono);font-size:11px;color:var(--ink-3);text-align:right;}
-.top .rc b{color:var(--accent);font-size:14px;}.top .rc small{display:block;color:var(--ink-4);font-size:9.5px;margin-top:1px;}
-/* 工作流循环(hero) */
-.wf{display:flex;align-items:center;gap:6px;background:var(--ink);border-radius:10px;padding:9px 12px;margin-bottom:8px;flex-shrink:0;box-shadow:0 8px 24px -14px rgba(0,0,0,.5);}
-.wf .wl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--gold);flex-shrink:0;margin-right:4px;}
-.wstage{flex:1;text-align:center;font-size:12px;color:#8a8278;background:#241f19;border:1px solid #2f2a22;border-radius:6px;padding:7px 4px;transition:all .25s;position:relative;}
-.wstage.active{color:#fff;background:var(--accent);border-color:var(--accent);font-weight:700;transform:translateY(-1px);box-shadow:0 4px 12px -4px rgba(179,55,42,.6);}
-.wstage.active.pass{background:var(--green);border-color:var(--green);box-shadow:0 4px 12px -4px rgba(45,106,79,.6);}
-.wstage.active.reject{background:var(--accent);}
-.wstage.done{color:#c9c0b0;border-color:#3a342b;}
-.warr{color:#4a443a;font-size:13px;flex-shrink:0;}
-.warr.loop{color:var(--gold);}
-/* 主区 */
+.top .brand{font-family:var(--serif);font-weight:900;font-size:16px;}
+.top .brand b{color:var(--accent);}.top .brand small{font-family:var(--sans);font-weight:500;font-size:11.5px;color:var(--accent);margin-left:7px;}
+.skill-now{text-align:right;}
+.skill-now .sk-no{font-family:var(--cond);font-weight:700;font-size:13px;color:var(--accent);letter-spacing:.04em;}
+.skill-now .sk-nm{font-family:var(--serif);font-weight:700;font-size:17px;line-height:1.1;}
+/* 12-Skill 进度坞 */
+.dock{display:flex;gap:5px;background:var(--paper);border:1px solid var(--line-2);border-radius:10px;padding:8px 9px;margin-bottom:8px;flex-shrink:0;}
+.skill-chip{flex:1;border:1px solid var(--line);border-radius:6px;padding:6px 3px 5px;background:#fff;text-align:center;position:relative;transition:all .3s;}
+.skill-chip .sn{font-family:var(--cond);font-weight:700;font-size:11px;color:var(--ink-4);}
+.skill-chip .st{font-size:9.5px;color:var(--ink-4);line-height:1.1;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.skill-chip.done{background:#f0f6f2;border-color:#bcd9cc;}
+.skill-chip.done .sn{color:var(--green);}.skill-chip.done .sn::after{content:" ✓";}
+.skill-chip.done .st{color:var(--green);}
+.skill-chip.cur{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);transform:translateY(-2px);}
+.skill-chip.cur .sn,.skill-chip.cur .st{color:#fff;}
+.skill-chip.feeding{animation:feed .6s ease;}
+@keyframes feed{0%{transform:scale(1);box-shadow:0 0 0 0 rgba(212,164,65,.8);}40%{transform:scale(1.18) translateY(-4px);box-shadow:0 0 0 8px rgba(212,164,65,.35);background:var(--gold);}100%{transform:translateY(-2px);box-shadow:0 0 0 3px var(--accent-soft);}}
 .main{flex:1;display:grid;grid-template-columns:0.86fr 1fr;gap:13px;min-height:0;}
 .term{background:var(--term);border-radius:11px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 40px -20px rgba(0,0,0,.5);border:1px solid #000;}
 .term-bar{display:flex;align-items:center;gap:7px;padding:8px 12px;background:var(--term-2);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;}
@@ -44,7 +45,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-
 .term-bar .ttl{margin-left:6px;font-family:var(--mono);font-size:10.5px;color:#8a8278;}.term-bar .ttl b{color:#c9a227;}
 .log{flex:1;overflow-y:auto;padding:13px 15px 18px;}
 .log::-webkit-scrollbar{width:6px;}.log::-webkit-scrollbar-thumb{background:#3a342b;border-radius:4px;}
-.turn{margin-bottom:13px;}
+.skload{font-family:var(--mono);font-size:11.5px;color:#e0b54a;background:rgba(212,164,65,.08);border:1px solid #4a3c1a;border-radius:6px;padding:7px 10px;margin-bottom:13px;display:flex;align-items:center;gap:8px;}
+.skload .sp{width:12px;height:12px;border:2px solid #4a3c1a;border-top-color:#e0b54a;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+.skload.loaded{color:#7fb8a0;border-color:#2f4a3e;background:rgba(127,184,160,.07);}
+.turn{margin-bottom:12px;}
 .who{font-family:var(--mono);font-size:10px;margin-bottom:5px;display:flex;align-items:center;gap:6px;}
 .who.you{color:#7fb8a0;}.who.ai{color:#d9a441;}
 .who .av{width:15px;height:15px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;}
@@ -56,7 +60,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-
 .building{display:flex;align-items:center;gap:8px;color:#d9a441;font-family:var(--mono);font-size:11.5px;}
 .building .sp{width:12px;height:12px;border:2px solid #4a3c1a;border-top-color:#d9a441;border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.done-ok{color:#7fb8a0;}.done-back{color:#e0857c;}.done-warn{color:#e0b54a;}
+.done-ok{color:#7fb8a0;}.done-back{color:#e0857c;}
 .ghost{font-family:var(--mono);font-size:10px;color:#6a6358;text-align:center;font-style:italic;border-top:1px dashed #2f2a22;border-bottom:1px dashed #2f2a22;padding:5px 4px;margin:2px 0 11px;}
 .preview{display:flex;flex-direction:column;min-height:0;}
 .pv-frame{flex:1;background:#fff;border-radius:11px;border:1px solid var(--line-2);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 16px 40px -22px rgba(0,0,0,.32);position:relative;}
@@ -69,8 +73,15 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-
 .pv-stage.on{opacity:1;position:relative;}
 .stamp{position:absolute;top:13px;right:13px;font-family:var(--cond);font-weight:700;font-size:13px;padding:4px 11px;border-radius:5px;z-index:6;transform:rotate(6deg);}
 .stamp.back{color:#fff;background:var(--accent);}.stamp.warn{color:#3a2e00;background:#e0b54a;}
-/* 多维验证台 */
-.verify{display:grid;grid-template-columns:1.2fr .8fr;background:var(--paper);border:1px solid var(--line-2);border-radius:10px;margin-top:9px;flex-shrink:0;overflow:hidden;box-shadow:0 6px 20px -14px rgba(0,0,0,.3);}
+.verify{background:var(--paper);border:1px solid var(--line-2);border-radius:10px;margin-top:9px;flex-shrink:0;overflow:hidden;box-shadow:0 6px 20px -14px rgba(0,0,0,.3);}
+.miniwf{display:flex;align-items:center;gap:5px;padding:6px 13px;background:#fbf9f3;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:9.5px;color:var(--ink-4);}
+.miniwf .ml{color:var(--accent);letter-spacing:.06em;margin-right:4px;}
+.miniwf .ms{padding:2px 7px;border-radius:4px;border:1px solid var(--line-2);background:#fff;transition:all .25s;}
+.miniwf .ms.on{color:#fff;background:var(--ink);border-color:var(--ink);}
+.miniwf .ms.on.pass{background:var(--green);border-color:var(--green);}
+.miniwf .ms.on.reject{background:var(--accent);border-color:var(--accent);}
+.miniwf .ma{color:var(--line-2);}
+.vbody{display:grid;grid-template-columns:1.2fr .8fr;}
 .vf-l{padding:9px 14px;}
 .vf-h{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:var(--accent);margin-bottom:6px;text-transform:uppercase;}
 .dims{list-style:none;display:flex;flex-direction:column;gap:3px;}
@@ -82,25 +93,21 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-
 .dim-row .dby{font-family:var(--mono);font-size:9px;color:var(--ink-4);border:1px solid var(--line-2);border-radius:4px;padding:1px 6px;flex-shrink:0;}
 .dim-row.ok .dby{color:var(--green);border-color:#bcd9cc;}.dim-row.no .dby{color:var(--accent);border-color:#e6c5bf;}
 .vf-r{padding:9px 14px;border-left:1px solid var(--line);background:#fbf9f3;display:flex;flex-direction:column;gap:5px;justify-content:center;}
+.judge-by{font-size:11px;color:var(--ink-3);}.judge-by b{color:var(--ink);font-size:12px;}
 .verdict{align-self:flex-start;font-family:var(--cond);font-weight:700;font-size:16px;padding:3px 13px;border-radius:6px;transition:all .3s;}
 .verdict.wait{color:var(--ink-4);background:var(--bg);font-size:12px;font-family:var(--sans);}
 .verdict.pass{color:#fff;background:var(--green);}.verdict.reject{color:#fff;background:var(--accent);}
 .vreason{font-size:11px;color:var(--ink-3);line-height:1.5;}
-.vf-foot{grid-column:1/-1;border-top:1px dotted var(--line-2);padding:7px 14px;font-size:11.5px;color:var(--ink-3);font-style:italic;background:var(--bg);}
+.vf-foot{border-top:1px dotted var(--line-2);padding:7px 14px;font-size:11.5px;color:var(--ink-3);font-style:italic;background:var(--bg);}
 .vf-foot b{color:var(--accent);font-style:normal;}
 .ctrl{display:flex;align-items:center;gap:13px;margin-top:8px;flex-shrink:0;}
-.progress{flex:1;display:flex;gap:4px;}
-.progress i{flex:1;height:4px;background:var(--line);border-radius:2px;transition:background .4s;}.progress i.done{background:var(--accent);}
-.steplab{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);min-width:96px;}.steplab b{color:var(--accent);}
+.progress{flex:1;display:flex;gap:4px;}.progress i{flex:1;height:4px;background:var(--line);border-radius:2px;transition:background .4s;}.progress i.done{background:var(--accent);}
+.steplab{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);min-width:90px;}.steplab b{color:var(--accent);}
 .next{background:var(--ink);color:#fbf8f0;border:none;border-radius:8px;padding:11px 24px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:transform .12s,background .2s;}
 .next:hover{transform:translateY(-1px);background:#000;}.next:disabled{opacity:.45;cursor:not-allowed;transform:none;}
 .replay{background:transparent;border:1px solid var(--line-2);color:var(--ink-3);border-radius:8px;padding:11px 14px;font-size:12.5px;cursor:pointer;}
 .kbd{font-family:var(--mono);font-size:10px;color:var(--ink-4);}
-/* mockups */
-.v1{font-family:Times New Roman,serif;color:#222;}.v1 .t{font-size:17px;font-weight:bold;margin-bottom:11px;}
-.v1 input,.v1 textarea{width:100%;border:1px solid #999;padding:6px;margin-bottom:8px;font-family:inherit;font-size:13px;}
-.v1 button{background:#4a72d4;color:#fff;border:none;padding:6px 14px;font-size:13px;}
-.v1 .out{margin-top:11px;background:#eee;border:1px solid #ccc;padding:9px;font-size:12px;color:#444;}
+.v1{font-family:Times New Roman,serif;color:#222;}.v1 .t{font-size:17px;font-weight:bold;margin-bottom:11px;}.v1 input,.v1 textarea{width:100%;border:1px solid #999;padding:6px;margin-bottom:8px;font-family:inherit;font-size:13px;}.v1 button{background:#4a72d4;color:#fff;border:none;padding:6px 14px;font-size:13px;}.v1 .out{margin-top:11px;background:#eee;border:1px solid #ccc;padding:9px;font-size:12px;color:#444;}
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px;}.tabs span{font-size:11px;border:1px solid #bbb;border-radius:5px;padding:5px 8px;background:#f3f3f3;color:#555;}
 .overload .blk{border:1px dashed #c9c2b2;border-radius:6px;padding:8px;margin-bottom:6px;font-size:11.5px;color:#888;background:#faf8f2;}
 .bk .kk{font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:var(--accent);text-transform:uppercase;}
@@ -112,51 +119,28 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-
 .tag-soft{display:inline-block;font-size:10.5px;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:2px 7px;margin-bottom:8px;font-family:var(--mono);}
 .rcard{border:1px solid var(--line-2);border-radius:9px;overflow:hidden;margin-top:11px;background:var(--paper);}
 .rcard .rh{padding:11px 13px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px;}
-.ring{width:48px;height:48px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--cond);font-weight:700;font-size:16px;color:#fff;}
-.ring i{font-style:normal;font-size:9px;opacity:.85;}
+.ring{width:48px;height:48px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--cond);font-weight:700;font-size:16px;color:#fff;}.ring i{font-style:normal;font-size:9px;opacity:.85;}
 .rh .vt{font-family:var(--serif);font-weight:700;font-size:14px;}.rh .vs{font-size:11px;color:var(--ink-3);margin-top:2px;}
-.dim2{padding:7px 13px;border-bottom:1px dotted var(--line-2);}
-.dim2 .dr{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}.dim2 .dr b{font-family:var(--cond);}
-.dim2 .tk{height:5px;background:var(--bg);border:1px solid var(--line);border-radius:3px;overflow:hidden;}.dim2 .fl{height:100%;border-radius:3px;}
-.fixrow{display:flex;gap:8px;padding:7px 13px;font-size:11.5px;line-height:1.5;color:var(--ink-2);}
-.fixrow .n{font-family:var(--cond);font-weight:700;color:#fff;background:var(--accent);width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}
-.fixrow b{color:var(--ink);}
-.chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 13px 9px;}
-.chip{font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid var(--line-2);color:var(--ink-3);}
-.chip.ok{color:var(--green);border-color:#bcd9cc;background:#f0f6f2;}.chip.no{color:var(--accent);border-color:#e6c5bf;background:var(--accent-soft);}
-.err{font-family:var(--mono);background:#2a1512;border:1px solid #5a2a24;border-radius:8px;padding:13px;color:#ffb4ab;font-size:11.5px;line-height:1.7;}
-.err .ttl{color:#ff6b5e;font-weight:700;margin-bottom:7px;}
+.dim2{padding:7px 13px;border-bottom:1px dotted var(--line-2);}.dim2 .dr{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}.dim2 .dr b{font-family:var(--cond);}.dim2 .tk{height:5px;background:var(--bg);border:1px solid var(--line);border-radius:3px;overflow:hidden;}.dim2 .fl{height:100%;border-radius:3px;}
+.fixrow{display:flex;gap:8px;padding:7px 13px;font-size:11.5px;line-height:1.5;color:var(--ink-2);}.fixrow .n{font-family:var(--cond);font-weight:700;color:#fff;background:var(--accent);width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;}.fixrow b{color:var(--ink);}
+.chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 13px 9px;}.chip{font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid var(--line-2);color:var(--ink-3);}.chip.ok{color:var(--green);border-color:#bcd9cc;background:#f0f6f2;}.chip.no{color:var(--accent);border-color:#e6c5bf;background:var(--accent-soft);}
+.err{font-family:var(--mono);background:#2a1512;border:1px solid #5a2a24;border-radius:8px;padding:13px;color:#ffb4ab;font-size:11.5px;line-height:1.7;}.err .ttl{color:#ff6b5e;font-weight:700;margin-bottom:7px;}
 .note-sticky{background:#fff6d6;border:1px solid #e6d48a;border-radius:6px;padding:8px 10px;font-size:11.5px;color:#5a4a16;margin-bottom:6px;}.note-sticky b{color:#8a6d12;}
 .tbl{width:100%;border-collapse:collapse;font-size:11.5px;}.tbl td{padding:6px;border-bottom:1px dotted var(--line-2);}.tbl tr.hd td{color:var(--ink-4);font-size:10px;border-bottom:1px solid var(--line);}.tbl .sc{text-align:right;font-family:var(--cond);color:var(--accent);}
 .stat-cards{display:flex;gap:9px;margin-bottom:11px;}.stat-cards .s{flex:1;background:var(--paper);border:1px solid var(--line-2);border-radius:8px;padding:10px;text-align:center;}.stat-cards .s .n{font-family:var(--cond);font-weight:700;font-size:20px;color:var(--accent);}.stat-cards .s .l{font-size:10px;color:var(--ink-4);}
 .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11.5px;}.bar-row .bl{width:80px;flex-shrink:0;color:var(--ink-2);}.bar-row .bt{flex:1;height:8px;background:var(--bg);border:1px solid var(--line);border-radius:5px;overflow:hidden;}.bar-row .bf{height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));}.bar-row .bp{width:32px;text-align:right;font-family:var(--cond);color:var(--accent);}
-.resume .doc{background:#fff;border:1px solid var(--line-2);border-radius:8px;padding:15px;box-shadow:0 4px 12px -7px rgba(0,0,0,.2);}
-.resume .nm{font-family:var(--serif);font-weight:700;font-size:14px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:9px;}
-.resume .sec{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--ink-4);margin:8px 0 6px;}
-.resume .line{height:7px;background:#eee;border-radius:3px;margin-bottom:6px;}.resume .line.s{width:58%;}
-.resume .bullet{background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:9px 11px;font-size:11.5px;line-height:1.6;color:var(--ink);margin:7px 0;}.resume .bullet b{color:var(--accent);}
-.qrow{display:flex;gap:8px;font-size:11.5px;line-height:1.5;color:var(--ink-2);padding:6px 0;border-bottom:1px dotted var(--line-2);}.qrow .qn{font-family:var(--cond);font-weight:700;color:var(--accent);flex-shrink:0;}
-.endcard{text-align:center;padding:20px 14px;}
-.endcard .big{font-family:var(--serif);font-weight:900;font-size:20px;line-height:1.4;margin-bottom:11px;}.endcard .big em{color:var(--accent);font-style:normal;}
-.endcard .row{display:flex;justify-content:center;gap:18px;margin:14px 0;}.endcard .row .n{font-family:var(--cond);font-weight:700;font-size:24px;color:var(--accent);}.endcard .row .l{font-size:10px;color:var(--ink-4);font-family:var(--mono);margin-top:2px;}
-.endcard .note{font-size:12px;color:var(--ink-3);line-height:1.8;max-width:430px;margin:0 auto;}.endcard .note b{color:var(--ink);}
-@media(max-width:900px){body{overflow:auto;}.stage{height:auto;}.main{grid-template-columns:1fr;grid-template-rows:320px 320px;}.wf{flex-wrap:wrap;}}
+.resume .doc{background:#fff;border:1px solid var(--line-2);border-radius:8px;padding:15px;box-shadow:0 4px 12px -7px rgba(0,0,0,.2);}.resume .nm{font-family:var(--serif);font-weight:700;font-size:14px;border-bottom:2px solid var(--ink);padding-bottom:6px;margin-bottom:9px;}.resume .sec{font-family:var(--mono);font-size:9px;letter-spacing:.14em;color:var(--ink-4);margin:8px 0 6px;}.resume .line{height:7px;background:#eee;border-radius:3px;margin-bottom:6px;}.resume .line.s{width:58%;}.resume .bullet{background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:9px 11px;font-size:11.5px;line-height:1.6;color:var(--ink);margin:7px 0;}.resume .bullet b{color:var(--accent);}
+.endcard{text-align:center;padding:18px 14px;}.endcard .big{font-family:var(--serif);font-weight:900;font-size:20px;line-height:1.4;margin-bottom:11px;}.endcard .big em{color:var(--accent);font-style:normal;}.endcard .row{display:flex;justify-content:center;gap:18px;margin:14px 0;}.endcard .row .n{font-family:var(--cond);font-weight:700;font-size:24px;color:var(--accent);}.endcard .row .l{font-size:10px;color:var(--ink-4);font-family:var(--mono);margin-top:2px;}.endcard .note{font-size:12px;color:var(--ink-3);line-height:1.8;max-width:440px;margin:0 auto;}.endcard .note b{color:var(--ink);}
+@media(max-width:920px){body{overflow:auto;}.stage{height:auto;}.main{grid-template-columns:1fr;grid-template-rows:320px 320px;}.dock{flex-wrap:wrap;}.skill-chip{flex:1 1 14%;}}
 </style>
 </head>
 <body>
 <div class="stage">
   <div class="top">
-    <div class="brand">造物工作流引擎<small>重要的不是提示词,是这套工作流</small></div>
-    <div class="rc"><span>工作流 · 第 <b id="rnd">0</b> 轮</span><small id="rcsub">每条要求都要被逐维验证 + 真人判过,才算有效</small></div>
+    <div class="brand">12 Skill 造物工作流<small>提示词只是零件,这 12 个 Skill 串成的工作流才是壁垒</small></div>
+    <div class="skill-now"><div class="sk-no" id="skno">SKILL — / 12</div><div class="sk-nm" id="sknm">准备开始</div></div>
   </div>
-  <div class="wf" id="wf">
-    <span class="wl">工作流<br>循环</span>
-    <span class="wstage" data-s="0">① 写 Brief</span><span class="warr">→</span>
-    <span class="wstage" data-s="1">② AI 造</span><span class="warr">→</span>
-    <span class="wstage" data-s="2">③ 多维验证</span><span class="warr">→</span>
-    <span class="wstage" data-s="3">④ 真人判定</span><span class="warr">→</span>
-    <span class="wstage" data-s="4">⑤ 过 / 打回</span><span class="warr loop">↺</span>
-  </div>
+  <div class="dock" id="dock"></div>
   <div class="main">
     <div class="term">
       <div class="term-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="ttl">claude code — <b>~/标题诊断器</b></span></div>
@@ -169,9 +153,9 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-
       </div>
     </div>
   </div>
-  <div class="verify" id="verify"><div class="vf-foot" id="vfoot0">点「下一步」——看每个提示词里的<b>每一条要求,怎么被逐维验证、被真人判过</b>。提示词谁都会写,这套工作流才是壁垒。</div></div>
+  <div class="verify" id="verify"><div class="vf-foot">点「下一步」——每进一关,先<b>喂入一个 Skill</b>,再让它的每条标准被逐维验证、被真人判过。</div></div>
   <div class="ctrl">
-    <span class="steplab">第 <b id="cur">0</b> / <span id="tot">13</span> 关</span>
+    <span class="steplab">Skill <b id="cur">0</b> / 12</span>
     <span class="progress" id="prog"></span>
     <span class="kbd">空格/→</span>
     <button class="replay" onclick="resetAll()">↻ 重来</button>
@@ -179,166 +163,141 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-
   </div>
 </div>
 <script>
+/* 12 个 Skill(= 12 关)。名字可替换成你自己的 12 个 */
+const SKILLS=['需求调研','造物起手式','功能取舍','评分建模','诊断式调试','组件化','体验适配','陌生人验真','反馈筛选','数据沉淀','上线部署','HR翻译·面试'];
+const WF=['写Brief','AI造','多维验证','真人判定','过/打回'];
 const STEPS=[
-{node:'造物',rnd:1,skip:0,
- prompt:`开工前先做调研,别凭感觉。下面每一条都要查清楚、给证据,不许泛泛而谈:
-1)痛点验证:“标题/开头没人点”真存在吗?给 ≥3 个公开平台(小红书/豆瓣/知乎)的真实求助实例;
-2)人群定位:最被困扰的是哪类人?他们在什么场景下卡住?
+{skill:0,skip:0,
+ prompt:`开工前先做调研,别凭感觉。下面每条都要给证据,不许泛泛:
+1)痛点验证:“标题/开头没人点”真存在吗?给 ≥3 个公开平台真实求助实例;
+2)人群定位:最被困扰的是谁?什么场景下卡住?
 3)竞品扫描:≥3 个同类工具,分别强在哪、缺在哪;
-4)用户原话:给 5 条目标用户的真实吐槽原话;
-5)差异化结论:这工具该做“诊断”还是“生成”?为什么?`,
+4)用户原话:给 5 条目标用户真实吐槽;
+5)差异化结论:该做“诊断”还是“生成”?为什么?`,
  build:'检索 + 汇总调研中…',
  dims:[[1,'痛点 ≥3 个真实实例','导师'],[1,'竞品 ≥3 且说得出缺口','导师'],[1,'≥5 条用户原话','导师'],[1,'给出差异化结论','导师']],
- by:'专业导师',reason:'四条全过 → 放行,可以动手。',
- judge:`不调研直接做 = 自我感动。<b>这一步的每条都得有证据</b>,不是“我觉得有需求”。`,
- chip:'先调研,再动手',url:'research.md',view:'research'},
+ by:'专业导师',reason:'四条全过 → 放行。',judge:`不调研直接做=自我感动。每条都得有证据,不是“我觉得有需求”。`,
+ url:'research.md',view:'research'},
 
-{node:'造物',rnd:2,skip:0,
- prompt:`你是资深内容运营 + 会用 AI 做轻量产品的工程师。严格按每一条做,缺一条都算不合格:
-【目标用户】内容创作者 + 正在求职的应届生
+{skill:1,skip:0,
+ prompt:`你是资深内容运营 + 会用 AI 做轻量产品的工程师。严格按每条做,缺一条都算不合格:
+【目标用户】内容创作者 + 求职应届生
 【核心功能】只做一个:输入「标题+开头」→ 诊断 + 具体修改建议 + 改写版
 【交互约束】单页网页;操作 ≤ 3 步;首屏一句话说清用途
 【输出约束】每条建议含「具体改什么 + 为什么」,≤ 3 条,禁止正确废话
 【技术约束】完整可运行 HTML;无后端;手机端不错位
 【协作规则】先给第一版,做完停下等反馈,不准加我没要求的功能`,
  build:'写第一版完整代码中…',
- dims:[[1,'能运行、不报错','自动'],[1,'操作 ≤ 3 步','导师'],[0,'只有 1 个核心功能(它加了 5 个)','自动'],[1,'首屏说清用途','导师']],
- by:'专业导师 + 自动检查',reason:'它擅自加了选题库/账号诊断等 5 个功能,违反“只做一个” → 打回。',
- judge:`AI 会自作主张乱加。<b>“只 1 个功能”这条维度没过,就必须打回</b>——新手舍不得删,死在这。`,
- chip:'某条维度没过 → 打回',url:'index.html · 越权版',view:'overload'},
+ dims:[[1,'能运行不报错','自动'],[1,'操作 ≤ 3 步','导师'],[0,'只有 1 个核心功能(它加了 5 个)','自动'],[1,'首屏说清用途','导师']],
+ by:'专业导师 + 自动检查',reason:'它擅自加了 5 个功能 → 打回。',judge:`“只 1 个功能”这条维度没过,就必须打回。新手舍不得删,死在这。`,
+ url:'index.html · 越权版',view:'overload'},
 
-{node:'造物',rnd:6,skip:3,
+{skill:2,skip:3,
  prompt:`回退到一个功能,我宁愿一个做到极好。一次解决三件事,做完逐条对照:
 1)只保留「标题+开头诊断」,删掉其它所有功能与入口;
-2)诊断重写:每条建议必须是「把『X』改成『Y』,因为 Z」,最多 3 条,并给改写后示例;
-3)禁止出现“提升吸引力”“优化措辞”这类正确废话。`,
+2)诊断重写:每条建议必须是「把『X』改成『Y』,因为 Z」,≤3 条,给改写示例;
+3)禁止“提升吸引力”“优化措辞”这类正确废话。`,
  build:'砍功能 + 重写诊断逻辑中…',
  dims:[[1,'只剩 1 个核心功能','自动'],[1,'建议含“改什么+为什么”','导师'],[1,'建议 ≤ 3 条','自动'],[1,'无正确废话','导师']],
- by:'专业导师',reason:'四条全过 → 诊断可执行,放行。',
- judge:`把“不行”翻译成“每条建议=把X改成Y因为Z”,<b>这种可被验证的标准,才挡得住糊弄</b>。`,
- chip:'正确废话 → 改哪一句',url:'index.html · 聚焦版',view:'v3'},
+ by:'专业导师',reason:'四条全过 → 诊断可执行。',judge:`把“不行”翻译成“把X改成Y因为Z”——这种可被验证的标准,才挡得住糊弄。`,
+ url:'index.html · 聚焦版',view:'v3'},
 
-{node:'造物',rnd:11,skip:4,
- prompt:`诊断不能黑箱打分。设计一套“可解释”的评分模型,把规则写进代码注释:
+{skill:3,skip:4,
+ prompt:`诊断不能黑箱打分。设计一套“可解释”的评分模型,写进代码注释:
 1)三维:点击欲/信息量/情绪钩子,各 0–2 分;
-2)每维明确“看哪些信号”(有无数字、人群词、痛点词…);
-3)每条规则能一句话解释给面试官,禁止“综合评估”这种说不清的词;
-4)给 2 个打分示例(一高一低)验证规则合理。`,
+2)每维明确“看哪些信号”(数字、人群词、痛点词…);
+3)每条规则能一句话讲给面试官,禁止“综合评估”这类说不清的词;
+4)给 2 个示例(一高一低)自证规则合理。`,
  build:'设计评分规则中…',
- dims:[[1,'每维规则可一句话解释','资深运营导师'],[1,'无“综合评估”黑箱词','导师'],[1,'给 2 个示例自证合理','自动']],
- by:'资深内容运营导师',reason:'规则可解释、可自证 → 过。这是作品有没有深度的分水岭。',
- judge:`“凭什么这么打分”面试必问。<b>“可解释”是个能被资深人验的硬标准</b>,不是你说可解释就算。`,
- chip:'黑箱打分 → 可解释模型',url:'scoring-model.js',view:'rubric'},
+ dims:[[1,'每维规则可一句话解释','资深运营导师'],[1,'无“综合评估”黑箱词','导师'],[1,'给 2 个示例自证','自动']],
+ by:'资深内容运营导师',reason:'规则可解释、可自证 → 过。',judge:`“凭什么这么打分”面试必问。“可解释”是个能被资深人验的硬标准。`,
+ url:'scoring-model.js',view:'rubric'},
 
-{node:'造物',rnd:15,skip:3,
- prompt:`点“诊断”没反应,控制台报错:
+{skill:4,skip:3,
+ prompt:`点“诊断”没反应,报错:
 Uncaught TypeError: Cannot read properties of null (reading 'value') at diagnose (index.html:142)
-请:1)解释根因;2)只改报错相关的那一处;3)其它代码一行不动;4)告诉我怎么自测确认修好。`,
+请:1)解释根因;2)只改报错那一处;3)其它一行不动;4)告诉我怎么自测确认修好。`,
  build:'定位报错中…',
  dims:[[1,'根因解释清楚','导师'],[1,'报错清零','自动'],[1,'改动只限报错处','导师']],
- by:'专业导师 + 自动检查',reason:'定位准、改动小、可自测 → 过。',
- judge:`报错很正常。<b>“改动是否只限报错处”要被人核一遍</b>,否则 AI 越改越乱你都不知道。`,
- chip:'报错 → 诊断式精修',url:'index.html · 调试中',view:'error'},
+ by:'专业导师 + 自动检查',reason:'定位准、改动小、可自测 → 过。',judge:`报错很正常。“改动是否只限报错处”要被人核,否则 AI 越改越乱你都不知道。`,
+ url:'index.html · 调试中',view:'error'},
 
-{node:'造物',rnd:20,skip:4,
+{skill:5,skip:4,
  prompt:`加几个“能被看见”的组件,逐条来:
 1)结果做成可截图卡片(标题/分区/圆角/淡阴影/署名位);
 2)三维分数用进度条 + 总分环,3 秒看懂;
-3)把检测信号(✓含数字 / ✗缺钩子)标出来;
-4)历史记录存浏览器,支持一键清空。`,
+3)把检测信号(✓含数字/✗缺钩子)标出来;
+4)历史记录存浏览器,可一键清空。`,
  build:'加组件 + 本地存储中…',
  dims:[[1,'3 秒看懂分数与结论','导师'],[1,'检测信号可见','自动'],[1,'历史可存可清','自动']],
- by:'专业导师',reason:'信息层级清楚 → 过。',
- judge:`你不用懂代码,但<b>“3 秒能不能看懂”得让真人验</b>,你自己看久了一定觉得“挺清楚”。`,
- chip:'像个真测评了',url:'index.html · 打分版',view:'score'},
+ by:'专业导师',reason:'信息层级清楚 → 过。',judge:`你不用懂代码,但“3 秒能不能看懂”得让真人验——你自己看久了一定觉得清楚。`,
+ url:'index.html · 打分版',view:'score'},
 
-{node:'造物',rnd:27,skip:6,
+{skill:6,skip:6,
  prompt:`只动样式不动功能,两件事一起做:
 1)移动端适配:375px 宽不出现横向滚动,字号/间距/按钮都适配手机;
-2)视觉精修:暖白底、克制、信息层级清晰;禁止默认蓝按钮、紫色渐变那种“一眼 AI”的模板感。`,
+2)视觉精修:暖白底、克制、层级清晰;禁止默认蓝按钮、紫渐变那种“一眼 AI”模板感。`,
  build:'适配手机 + 精修视觉中…',
  dims:[[1,'375px 宽不横向滚动','自动'],[1,'无紫渐变模板感','导师'],[1,'首屏一句话说清','导师']],
- by:'专业导师',reason:'移动端与质感达标 → 过。',
- judge:`HR 多在手机点开。<b>“手机不塌”是能测的硬标准</b>,“好看”得让有审美的人判。`,
- chip:'能进作品集的样子',url:'index.html · 精修版',view:'polished'},
+ by:'专业导师',reason:'移动端与质感达标 → 过。',judge:`HR 多在手机点开。“手机不塌”能测,“好看”得让有审美的人判。`,
+ url:'index.html · 精修版',view:'polished'},
 
-{node:'验真',rnd:28,skip:0,
+{skill:7,skip:0,
  prompt:`(我把版本发给 10 个不认识我的陌生人,收回反馈)他们原话:
 “第一眼不知道先点哪”“像工具箱,不知道哪个对我有用”“我只想知道我标题为什么不行”。
-请基于这些真实反馈,判断:哪些是必须改的核心问题、哪些只是个人口味?先别动手,给我判断。`,
+基于这些真实反馈判断:哪些是必须改的核心问题、哪些只是个人口味?先别动手。`,
  build:'汇总 10 位陌生用户反馈…',
  dims:[[0,'≥8 人 3 秒看懂用途(实测仅 3 人)','10 位真实用户'],[0,'≥6 人愿意再用','10 位真实用户'],[0,'能说出一句话价值','10 位真实用户']],
- by:'10 位真实陌生用户',reason:'三条全没过 → 打回重做减法。朋友夸十句,不如这一盆冷水。',
- judge:`<b>这三条只有真实陌生人能验,AI 和你都验不了</b>。这是最多人糊弄、也最致命的一关。`,
- chip:'真实用户 → 打回',url:'10 名陌生用户测试',view:'feedback'},
+ by:'10 位真实陌生用户',reason:'三条全没过 → 打回重做减法。',judge:`这三条只有真实陌生人能验,AI 和你都验不了。最多人糊弄、也最致命。`,
+ url:'10 名陌生用户测试',view:'feedback'},
 
-{node:'磨刃',rnd:31,skip:2,
- prompt:`按陌生人卡住的真实问题改,不是我想加什么就加什么:
+{skill:8,skip:2,
+ prompt:`按陌生人卡住的真实问题改,不是我想加什么:
 1)首屏一句话说清“给谁、解决什么”;
-2)输入框加示例占位,降低开始门槛;
-3)诊断结果按“最该改的”排最前,其余收起;
+2)输入框加示例占位;
+3)结果按“最该改”排最前,其余收起;
 4)改完再拿给陌生人复测。`,
  build:'按真实卡点迭代中…',
  dims:[[1,'复测 ≥8 人 3 秒看懂','真实用户复测'],[1,'改动只针对真实卡点','导师']],
- by:'真实用户复测',reason:'复测达标 → 过。',
- judge:`<b>不是所有反馈都听</b>:多人卡同一处=必改,一人说颜色丑=口味。听哪条,是判断。`,
- chip:'小而锋利,真跑通',url:'index.html · 磨刃版',view:'final'},
+ by:'真实用户复测',reason:'复测达标 → 过。',judge:`不是所有反馈都听:多人卡同一处=必改,一人说颜色丑=口味。听哪条,是判断。`,
+ url:'index.html · 磨刃版',view:'final'},
 
-{node:'磨刃',rnd:37,skip:5,
- prompt:`给作品加“深度”,接一个轻量后端(免费云库 supabase/leancloud 均可),零基础也能配:
+{skill:9,skip:5,
+ prompt:`给作品加“深度”,接一个轻量后端(免费云库 supabase/leancloud),零基础也能配:
 1)每次诊断分数匿名存库;
-2)做一个 /admin 统计页:累计次数、平均分、各维度最常失分 Top3;
-3)统计口径可追溯(说得清样本怎么来),不准编数据。`,
+2)做 /admin 统计页:累计次数、平均分、各维度最常失分 Top3;
+3)统计口径可追溯(说得清样本来源),不准编数据。`,
  build:'接数据存储 + 统计中…',
  dims:[[1,'真实样本入库(非编造)','导师'],[1,'统计口径可追溯','导师'],[1,'/admin 能跑','自动']],
- by:'专业导师',reason:'数据可信 → 过。面试能讲“62% 栽在情绪钩子”。',
- judge:`只有前端=玩具。<b>“数据是不是编的”要被人核</b>,编的数据面试一问就穿。`,
- chip:'不只前端:有真数据',url:'/admin · 统计看板',view:'backend'},
+ by:'专业导师',reason:'数据可信 → 过。',judge:`只有前端=玩具。“数据是不是编的”要被人核,编的数据面试一问就穿。`,
+ url:'/admin · 统计看板',view:'backend'},
 
-{node:'上线',rnd:38,skip:0,
+{skill:10,skip:0,
  prompt:`把作品上线成公开链接,假设我完全零基础:
 1)给最简单的免费部署方式,一步步说;
 2)给我可分享网址;
-3)逐项自测:换陌生设备能打开吗?手机能打开吗?链接发出去别人能点开吗?`,
+3)逐项自测:换陌生设备能打开吗?手机能打开吗?别人点得开吗?`,
  build:'部署到免费托管中…',
  dims:[[1,'陌生设备能打开','导师抽查'],[1,'手机能打开','导师抽查'],[1,'链接可分享','自动']],
- by:'专业导师抽查',reason:'三台设备都能开 → 过。',
- judge:`作品躺你电脑里=没做。<b>“别人点不点得开”得用别的设备真测</b>,你本机永远是好的。`,
- chip:'HR 能点开的链接',url:'https://你的名字.github.io/title-doctor/',view:'live'},
+ by:'专业导师抽查',reason:'三台设备都能开 → 过。',judge:`作品躺你电脑里=没做。“别人点不点得开”得用别的设备真测。`,
+ url:'https://你的名字.github.io/title-doctor/',view:'live'},
 
-{node:'翻译',rnd:40,skip:1,
- prompt:`把作品翻译成简历语言,严格按结构:
-针对【人群】在【场景】下的【痛点】,搭建【作品】,完成【N 名陌生用户测试】,
-基于反馈把【原方案】迭代为【新方案】,接入【数据】发现【洞察】,上线【链接】,证明【岗位核心能力】。
-要求:HR 10 秒内看出“证明什么岗位能力”;含量化结果;含可点开链接。`,
- build:'翻译成 HR 语言中…',
- dims:[[1,'HR 10 秒看出岗位能力','资深 HR'],[1,'含量化结果','自动'],[1,'含可点开链接','自动']],
- by:'资深 HR',reason:'(初稿被 HR 打回过一次:看不出岗位能力。这是改后 → 过。)',
- judge:`<b>“HR 看不看得懂”只有资深 HR 能判</b>,你自己写的永远觉得清楚。`,
- chip:'简历里 HR 停下的一条',url:'简历 · 项目经历',view:'resume'},
-
-{node:'嵌入',rnd:42,skip:1,
- prompt:`扮演一个挑剔的内容运营面试官,针对这个作品:
-1)问我 8 个最尖锐、最可能被问的问题;
-2)每题告诉我背后真正考察什么、我该往哪答;
-3)从资深从业者角度,指出它最容易显业余的 3 处,给具体改法。`,
- build:'生成压力面试中…',
- dims:[[1,'8 问能稳答 ≥6 个','导师模拟面'],[1,'3 个弱点都有具体改法','导师模拟面']],
- by:'导师模拟面 + AI 压测',reason:'扛得住追问 → 过。',
- judge:`同一作品投不同岗讲法不同。<b>先让人把你打疼,好过面试当场崩</b>。`,
- chip:'先被打疼一遍',url:'面试预演',view:'interview'}
+{skill:11,skip:1,
+ prompt:`作品做完了,翻译成求职语言并自检面试:
+1)写简历项目:针对【人群】在【场景】的【痛点】,搭建【作品】,完成【N 名陌生用户测试】,迭代为【新方案】,接入【数据】发现【洞察】,上线【链接】,证明【岗位能力】;
+2)扮演挑剔面试官,问我 8 个最尖锐的问题,并指出最容易显业余的 3 处。
+要求:HR 10 秒看出岗位能力;8 问我能稳答 ≥6 个。`,
+ build:'翻译 HR 语言 + 生成压力面试中…',
+ dims:[[1,'HR 10 秒看出岗位能力','资深 HR'],[1,'8 问能稳答 ≥6 个','导师模拟面'],[1,'含量化 + 可点开链接','自动']],
+ by:'资深 HR + 导师模拟面',reason:'(简历初稿被 HR 打回过一次,这是改后)→ 过。',judge:`“HR 看不看得懂”只有资深 HR 能判;面试扛不扛得住,只有真人能压。`,
+ url:'简历 · 项目经历',view:'resume'}
 ];
 
 const VIEWS={
- research:`<div><div style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:9px">research.md · 先搞清楚再动手</div>
-   <div class="note-sticky" style="background:#fff;border-color:var(--line-2);color:var(--ink-2)"><b>痛点真不真?</b> 小红书/豆瓣大量“为什么我笔记没人点”求助 → 真问题。</div>
-   <div class="note-sticky" style="background:#fff;border-color:var(--line-2);color:var(--ink-2)"><b>竞品缺什么?</b> 多是“标题生成”,不告诉你“你这条为什么不行、改哪句”。</div>
-   <div class="note-sticky" style="background:#fff;border-color:var(--line-2);color:var(--ink-2)"><b>用户原话:</b>“改了八百遍还没人点”“不知道问题在标题还是开头”。</div>
-   <div style="font-size:12px;color:var(--green);margin-top:8px">→ 结论:做<b>诊断</b>不做<b>生成</b>。</div></div>`,
- v1:`<div class="v1"><div class="t">标题诊断</div><input value="我做了个小工具"><textarea>最近在准备秋招……</textarea><button>提交</button><div class="out">结果:你的标题还可以,建议优化措辞,提升吸引力。加油!</div></div>`,
+ research:`<div><div style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:9px">research.md · 先搞清楚再动手</div><div class="note-sticky" style="background:#fff;border-color:var(--line-2);color:var(--ink-2)"><b>痛点真不真?</b> 小红书/豆瓣大量“为什么我笔记没人点”求助 → 真问题。</div><div class="note-sticky" style="background:#fff;border-color:var(--line-2);color:var(--ink-2)"><b>竞品缺什么?</b> 多是“标题生成”,不告诉你“你这条为什么不行、改哪句”。</div><div class="note-sticky" style="background:#fff;border-color:var(--line-2);color:var(--ink-2)"><b>用户原话:</b>“改了八百遍还没人点”。</div><div style="font-size:12px;color:var(--green);margin-top:8px">→ 结论:做<b>诊断</b>不做<b>生成</b>。</div></div>`,
  overload:`<div class="overload"><div class="tabs"><span>标题生成</span><span>选题库</span><span>爆款分析</span><span>文案改写</span><span>账号诊断</span></div><div class="blk">📦 选题库(空)</div><div class="blk">📊 爆款分析(占位)</div><div class="blk">✍ 文案改写(占位)</div><div style="font-size:12px;color:var(--accent);margin-top:6px">← 它自作主张塞了 5 个功能,全是半成品</div></div>`,
- v3:`<div class="bk"><span class="tag-soft">已砍到 1 个核心功能</span><div class="h">标题与开头诊断器</div><div class="sub">输入标题+开头 → 诊断 + 改哪句 + 改写版。</div><div class="lab">标题</div><div class="in">我做了个小工具</div><div class="btn">开始诊断</div><div class="rcard"><div class="fixrow"><span class="n">1</span><div><b>加“给谁看”</b>:标题点明人群「应届生｜…」。</div></div><div class="fixrow"><span class="n">2</span><div><b>加数字/钩子</b>:「3 个…的避坑清单」。</div></div></div></div>`,
- rubric:`<div><div style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:9px">评分模型 · 可解释</div><table class="tbl"><tr class="hd"><td>维度</td><td>看哪些信号</td><td class="sc">分</td></tr><tr><td><b>点击欲</b></td><td>数字/钩子词/长度</td><td class="sc">0–2</td></tr><tr><td><b>信息量</b></td><td>有无点明人群/话题具体</td><td class="sc">0–2</td></tr><tr><td><b>情绪钩子</b></td><td>痛点/悬念/对“你”说</td><td class="sc">0–2</td></tr></table><div style="font-size:11.5px;color:var(--ink-3);margin-top:8px">每条规则能一句话讲给面试官 = 可解释。</div></div>`,
+ v3:`<div class="bk"><span class="tag-soft">已砍到 1 个核心功能</span><div class="h">标题与开头诊断器</div><div class="sub">输入标题+开头 → 诊断 + 改哪句 + 改写版。</div><div class="lab">标题</div><div class="in">我做了个小工具</div><div class="btn">开始诊断</div><div class="rcard"><div class="fixrow"><span class="n">1</span><div><b>加“给谁看”</b>:点明人群「应届生｜…」。</div></div><div class="fixrow"><span class="n">2</span><div><b>加数字/钩子</b>:「3 个…的避坑清单」。</div></div></div></div>`,
+ rubric:`<div><div style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:9px">评分模型 · 可解释</div><table class="tbl"><tr class="hd"><td>维度</td><td>看哪些信号</td><td class="sc">分</td></tr><tr><td><b>点击欲</b></td><td>数字/钩子词/长度</td><td class="sc">0–2</td></tr><tr><td><b>信息量</b></td><td>有无人群/话题具体</td><td class="sc">0–2</td></tr><tr><td><b>情绪钩子</b></td><td>痛点/悬念/对“你”说</td><td class="sc">0–2</td></tr></table><div style="font-size:11.5px;color:var(--ink-3);margin-top:8px">每条规则能一句话讲给面试官 = 可解释。</div></div>`,
  error:`<div class="err"><div class="ttl">⚠ Uncaught TypeError</div>Cannot read properties of null (reading 'value')<br>at diagnose (index.html:142)<br><br>> 根因:取输入框 id 写错('titel'),取到 null。<br>> 修复:改成 'title',其余一行不动。</div><div style="font-size:11.5px;color:var(--green);margin-top:11px">✓ 只改一处 → 按钮恢复</div>`,
  score:`<div class="bk"><div class="h" style="font-size:17px">诊断结果</div><div class="rcard"><div class="rh"><div class="ring" style="background:var(--accent)">2<i>/6</i></div><div><div class="vt">建议重写 · 2/6</div><div class="vs">现在大概率没人想点</div></div></div><div class="dim2"><div class="dr"><span>点击欲</span><b style="color:var(--accent)">0/2</b></div><div class="tk"><span class="fl" style="width:0%;background:var(--accent)"></span></div></div><div class="chips"><span class="chip no">没数字</span><span class="chip no">缺钩子词</span></div><div class="dim2"><div class="dr"><span>信息量</span><b style="color:var(--gold)">1/2</b></div><div class="tk"><span class="fl" style="width:50%;background:var(--gold)"></span></div></div></div></div>`,
  polished:`<div class="bk" style="background:var(--paper);border:1px solid var(--line-2);border-radius:10px;padding:14px;box-shadow:0 8px 22px -14px rgba(0,0,0,.25)"><span class="kk">作品化求职 · 内容工具</span><div class="h">标题与开头诊断器</div><div class="sub">发布前,先让它替你挑刺。</div><div class="rcard"><div class="rh"><div class="ring" style="background:var(--green)">5<i>/6</i></div><div><div class="vt">可以发 · 5/6</div></div></div><div class="chips" style="padding:9px 13px"><span class="chip ok">含数字 ✓</span><span class="chip ok">有钩子 ✓</span><span class="chip ok">戳痛点 ✓</span><span class="chip ok">对“你”说 ✓</span></div></div></div>`,
@@ -346,76 +305,84 @@ const VIEWS={
  final:`<div class="bk" style="background:var(--paper);border:1px solid var(--line-2);border-radius:10px;padding:14px;box-shadow:0 8px 22px -14px rgba(0,0,0,.25)"><span class="kk">作品化求职 · 内容工具</span><div class="h">标题与开头诊断器</div><div class="sub">你的标题为什么没人想点?输入即测,给你改哪一句。</div><div class="lab">标题</div><div class="in">例:应届生必看的简历避坑清单</div><div class="btn">开始诊断</div><div style="font-size:11px;color:var(--ink-4);margin-top:9px;text-align:center">首屏说清 · 结果按“最该改”排前 · 跟着真实卡点改</div></div>`,
  backend:`<div><div style="font-family:var(--mono);font-size:11px;color:var(--green);margin-bottom:9px">/admin · 数据统计(已接轻量后端)</div><div class="stat-cards"><div class="s"><div class="n">1,284</div><div class="l">累计诊断</div></div><div class="s"><div class="n">3.2/6</div><div class="l">平均分</div></div></div><div style="font-size:11.5px;color:var(--ink-2);margin-bottom:7px">最常踩的坑 Top 3:</div><div class="bar-row"><span class="bl">情绪钩子缺</span><span class="bt"><span class="bf" style="width:62%"></span></span><span class="bp">62%</span></div><div class="bar-row"><span class="bl">没点明人群</span><span class="bt"><span class="bf" style="width:54%"></span></span><span class="bp">54%</span></div><div class="bar-row"><span class="bl">标题太长</span><span class="bt"><span class="bf" style="width:38%"></span></span><span class="bp">38%</span></div></div>`,
  live:`<div style="text-align:center;padding-top:4px"><div style="display:inline-block;background:#f0f6f2;border:1px solid #bcd9cc;color:var(--green);font-family:var(--mono);font-size:11px;border-radius:20px;padding:5px 14px;margin-bottom:12px">● 已上线 · 可公开访问</div><div style="background:#fff;border:1px solid var(--line-2);border-radius:9px;padding:12px;box-shadow:0 8px 22px -14px rgba(0,0,0,.25)"><div style="font-family:var(--mono);font-size:11px;color:var(--green);background:#f0f6f2;border:1px solid #bcd9cc;border-radius:20px;padding:5px 8px;margin-bottom:10px">🔗 https://你的名字.github.io/title-doctor/</div><span class="kk">作品化求职 · 内容工具</span><div class="h" style="font-size:17px">标题与开头诊断器</div><div class="sub">任何人点开链接就能用。</div><div class="btn">开始诊断</div></div></div>`,
- resume:`<div class="resume"><div class="doc"><div class="nm">张同学 · 内容运营</div><div class="sec">教育经历</div><div class="line"></div><div class="line s"></div><div class="sec">项目 / 作品</div><div class="bullet">针对内容创作者<b>标题点击率低、开头吸引力弱</b>的问题,搭建 <b>AI 标题与开头诊断工具</b>,完成 <b>10 名陌生用户测试</b>,基于反馈将 5 个分散功能<b>收敛为 1 个核心诊断流程</b>,接入数据发现 <b>62% 用户栽在情绪钩子</b>,并<b>上线可访问链接</b>,证明用户洞察、内容判断与工具化交付能力。</div><div class="sec">技能</div><div class="line"></div></div></div>`,
- interview:`<div><div style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:9px">挑剔面试官 · 8 个尖锐问题(节选)</div><div class="qrow"><span class="qn">Q1</span><div>你为什么砍掉其他 4 个功能?怎么判断的?</div></div><div class="qrow"><span class="qn">Q2</span><div>10 个陌生人怎么找的?哪条反馈最关键?</div></div><div class="qrow"><span class="qn">Q3</span><div>你的评分模型凭什么准?</div></div><div class="qrow"><span class="qn">Q4</span><div>那个 62% 怎么来的?样本可靠吗?</div></div><div style="font-size:11.5px;color:var(--ink-3);margin-top:9px">⚠ 最易显业余 3 处:评分逻辑说不清 / 样本太小 / 价值讲不出。</div></div>`
+ resume:`<div class="resume"><div class="doc"><div class="nm">张同学 · 内容运营</div><div class="sec">教育经历</div><div class="line"></div><div class="line s"></div><div class="sec">项目 / 作品</div><div class="bullet">针对内容创作者<b>标题点击率低、开头吸引力弱</b>的问题,搭建 <b>AI 标题与开头诊断工具</b>,完成 <b>10 名陌生用户测试</b>,将 5 个功能<b>收敛为 1 个核心诊断</b>,接入数据发现 <b>62% 用户栽在情绪钩子</b>,<b>上线可访问链接</b>,证明用户洞察、内容判断与工具化交付能力。</div><div class="sec">技能</div><div class="line"></div></div></div>`
 };
-const ENDVIEW=`<div class="endcard"><div class="big">提示词谁都会写。<br>这套<em>工作流</em>,才是壁垒。</div>
-  <div class="row"><div><div class="n">42</div><div class="l">轮工作流</div></div><div><div class="n">2</div><div class="l">次被真人打回</div></div><div><div class="n">30+</div><div class="l">个维度被逐一验</div></div></div>
-  <div class="note">你看到的不是“一句话出作品”。是同一套循环——<b>写 Brief → AI 造 → 多维验证 → 真人判定 → 过/打回</b>——跑了 42 遍。<br><br>每条要求都被逐维验证、被<b>专业导师 / 真实用户 / 资深 HR</b> 判过,做出来的东西才有效。<br><b>提示词能抄,工作流和那些判你的人,抄不走。</b></div></div>`;
+const ENDVIEW=`<div class="endcard"><div class="big">12 个 Skill,串成一套<em>工作流</em>。<br>提示词能抄,这个抄不走。</div>
+  <div class="row"><div><div class="n">12</div><div class="l">个 Skill</div></div><div><div class="n">42</div><div class="l">轮工作流</div></div><div><div class="n">30+</div><div class="l">维度被真人验</div></div></div>
+  <div class="note">每个 Skill 喂进去后,都跑同一套循环——<b>写 Brief → AI 造 → 多维验证 → 真人判定 → 过/打回</b>。<br>每条标准被<b>专业导师 / 真实用户 / 资深 HR</b> 判过,做出来才有效。<br><b>这 12 个 Skill 和判你的人,才是壁垒。</b></div></div>`;
 
-let i=-1,busy=false,rnd=0;
+let i=-1,busy=false;
 const log=document.getElementById('log'),pvbody=document.getElementById('pvbody'),prog=document.getElementById('prog');
+function pad(n){return ('0'+n).slice(-2);}
+function buildDock(){document.getElementById('dock').innerHTML=SKILLS.map((s,k)=>`<div class="skill-chip" data-k="${k}"><div class="sn">${pad(k+1)}</div><div class="st">${s}</div></div>`).join('');}
 function buildProg(){prog.innerHTML='';STEPS.forEach(()=>prog.appendChild(document.createElement('i')));}
-document.getElementById('tot').textContent=STEPS.length;
-function lightWF(s,verdict){document.querySelectorAll('.wstage').forEach(e=>{const si=+e.dataset.s;e.classList.remove('active','pass','reject','done');if(si<s)e.classList.add('done');else if(si===s){e.classList.add('active');if(s===4&&verdict)e.classList.add(verdict);}});}
-function addGhost(n){const g=document.createElement('div');g.className='ghost';g.textContent='⋯ 工作流又跑了 '+n+' 轮(改字号·调措辞·修边界·兼容…)⋯';log.appendChild(g);log.scrollTop=log.scrollHeight;}
+function feedSkill(k){const chips=document.querySelectorAll('.skill-chip');chips.forEach((c,j)=>{c.classList.remove('cur','feeding');if(j<k)c.classList.add('done');});const c=chips[k];c.classList.add('feeding');setTimeout(()=>{c.classList.remove('feeding');c.classList.add('cur');},560);
+  document.getElementById('skno').textContent='SKILL '+pad(k+1)+' / 12';document.getElementById('sknm').textContent=SKILLS[k];}
+function addGhost(n){const g=document.createElement('div');g.className='ghost';g.textContent='⋯ 该 Skill 内部又跑了 '+n+' 轮(改字号·调措辞·修边界…)⋯';log.appendChild(g);log.scrollTop=log.scrollHeight;}
+function addSkLoad(k){const d=document.createElement('div');d.className='skload';d.innerHTML=`<span class="sp"></span>📥 装载 Skill ${pad(k+1)} ·《${SKILLS[k]}》…`;log.appendChild(d);log.scrollTop=log.scrollHeight;return d;}
 function addTurn(cls,who,av){const t=document.createElement('div');t.className='turn '+cls;t.innerHTML=`<div class="who ${cls}"><span class="av">${av}</span>${who}</div><div class="bubble"></div>`;log.appendChild(t);log.scrollTop=log.scrollHeight;return t.querySelector('.bubble');}
-function typewrite(el,text,cb){let n=0;const car=document.createElement('span');car.className='caret';el.appendChild(car);const sp=Math.max(5,Math.min(16,900/text.length));
+function typewrite(el,text,cb){let n=0;const car=document.createElement('span');car.className='caret';el.appendChild(car);const sp=Math.max(5,Math.min(15,850/text.length));
   const t=setInterval(()=>{n++;el.textContent=text.slice(0,n);el.appendChild(car);log.scrollTop=log.scrollHeight;if(n>=text.length){clearInterval(t);car.remove();cb&&cb();}},sp);}
 function showView(key){pvbody.innerHTML=`<div class="pv-stage on">${key==='end'?ENDVIEW:VIEWS[key]}</div>`;}
 function stamp(type){if(type==='ok')return'';return `<span class="stamp ${type}">${type==='back'?'打回':'报错'}</span>`;}
-function renderVerifyShell(s){const rows=s.dims.map((d,k)=>`<li class="dim-row" data-k="${k}"><span class="dchk">·</span><span class="dtxt">${d[1]}</span><span class="dby">${d[2]}</span></li>`).join('');
+function miniWF(stage,verdict){document.querySelectorAll('.miniwf .ms').forEach(e=>{const si=+e.dataset.s;e.classList.remove('on','pass','reject');if(si===stage){e.classList.add('on');if(stage===4&&verdict)e.classList.add(verdict);}});}
+function renderVerifyShell(s){const rows=s.dims.map(d=>`<li class="dim-row"><span class="dchk">·</span><span class="dtxt">${d[1]}</span><span class="dby">${d[2]}</span></li>`).join('');
+  const wf=WF.map((w,k)=>`<span class="ms" data-s="${k}">${w}</span>`+(k<4?'<span class="ma">→</span>':'')).join('');
   document.getElementById('verify').innerHTML=
-   `<div class="vf-l"><div class="vf-h">逐维度验证 · 每条都要过</div><ul class="dims" id="dims">${rows}</ul></div>`+
-   `<div class="vf-r"><div class="judge-by" style="font-size:11px;color:var(--ink-3)">判官 · <b style="color:var(--ink)">${s.by}</b></div><div class="verdict wait" id="verdict2">验证中…</div><div class="vreason" id="vreason"></div></div>`+
+   `<div class="miniwf"><span class="ml">内部工作流</span>${wf}</div>`+
+   `<div class="vbody"><div class="vf-l"><div class="vf-h">逐维度验证 · 每条都要过</div><ul class="dims" id="dims">${rows}</ul></div>`+
+   `<div class="vf-r"><div class="judge-by">判官 · <b>${s.by}</b></div><div class="verdict wait" id="verdict2">验证中…</div><div class="vreason" id="vreason"></div></div></div>`+
    `<div class="vf-foot">🧠 ${s.judge}</div>`;}
 function animVerify(s,cb){const rows=[...document.querySelectorAll('#dims .dim-row')];let k=0;
-  const t=setInterval(()=>{if(k>=rows.length){clearInterval(t);cb();return;}const d=s.dims[k];const r=rows[k];r.classList.add('shown',d[0]?'ok':'no');r.querySelector('.dchk').textContent=d[0]?'✓':'✗';k++;},300);}
+  const t=setInterval(()=>{if(k>=rows.length){clearInterval(t);cb();return;}const d=s.dims[k],r=rows[k];r.classList.add('shown',d[0]?'ok':'no');r.querySelector('.dchk').textContent=d[0]?'✓':'✗';k++;},300);}
 
 function nextStep(){
   if(busy)return; if(i>=STEPS.length-1){endShow();return;}
   busy=true;i++;const s=STEPS[i];
   document.getElementById('cur').textContent=i+1;
   document.getElementById('nextBtn').disabled=true;
-  if(s.skip){rnd+=s.skip;addGhost(s.skip);} rnd=Math.max(rnd,s.rnd);document.getElementById('rnd').textContent=s.rnd;
-  lightWF(0);
-  const youB=addTurn('you','你','▶');
-  typewrite(youB,s.prompt,()=>{
-    lightWF(1);
-    const aiB=addTurn('ai','Claude Code','✦');aiB.innerHTML=`<span class="building"><span class="sp"></span>${s.build}</span>`;log.scrollTop=log.scrollHeight;
-    setTimeout(()=>{
-      document.getElementById('urlbar').textContent=s.url;document.getElementById('urlbar').classList.toggle('live',s.view==='live');
-      showView(s.view);
-      lightWF(2); renderVerifyShell(s);
-      animVerify(s,()=>{
-        lightWF(3);
-        const fail=s.dims.some(d=>!d[0]); const verdict=fail?'reject':'pass';
-        setTimeout(()=>{
-          lightWF(4,verdict);
-          const stype=fail?'back':(s.status==='warn'?'warn':'ok');const st=stamp(stype);if(st)pvbody.querySelector('.pv-stage').insertAdjacentHTML('beforeend',st);
-          aiB.innerHTML=`<span class="${fail?'done-back':'done-ok'}">${fail?'✗ 有维度没过 → 被打回':'✓ 全维度通过'}</span>`;log.scrollTop=log.scrollHeight;
-          const vd=document.getElementById('verdict2');vd.className='verdict '+verdict;vd.textContent=verdict==='pass'?'✅ 通过':'❌ 打回';
-          document.getElementById('vreason').textContent=s.reason;
-          prog.children[i].classList.add('done');
-          document.getElementById('nextBtn').disabled=false;document.getElementById('nextBtn').textContent=(i>=STEPS.length-1)?'▶ 看总结':'▶ 下一关';
-          busy=false;
-        },450);
-      });
-    },1000);
-  });
+  feedSkill(s.skill);
+  const sk=addSkLoad(s.skill);
+  setTimeout(()=>{
+    sk.classList.add('loaded');sk.innerHTML=`✓ 已喂入 Skill ${pad(s.skill+1)} ·《${SKILLS[s.skill]}》→ 启动工作流`;
+    if(s.skip)addGhost(s.skip);
+    const youB=addTurn('you','你','▶');
+    typewrite(youB,s.prompt,()=>{
+      const aiB=addTurn('ai','Claude Code','✦');aiB.innerHTML=`<span class="building"><span class="sp"></span>${s.build}</span>`;log.scrollTop=log.scrollHeight;
+      setTimeout(()=>{
+        document.getElementById('urlbar').textContent=s.url;document.getElementById('urlbar').classList.toggle('live',s.view==='live');
+        showView(s.view);renderVerifyShell(s);miniWF(2);
+        animVerify(s,()=>{
+          miniWF(3);
+          const fail=s.dims.some(d=>!d[0]),verdict=fail?'reject':'pass';
+          setTimeout(()=>{
+            miniWF(4,verdict);
+            const stype=fail?'back':'ok',st=stamp(stype);if(st)pvbody.querySelector('.pv-stage').insertAdjacentHTML('beforeend',st);
+            aiB.innerHTML=`<span class="${fail?'done-back':'done-ok'}">${fail?'✗ 有维度没过 → 被打回':'✓ 全维度通过'}</span>`;log.scrollTop=log.scrollHeight;
+            const vd=document.getElementById('verdict2');vd.className='verdict '+verdict;vd.textContent=verdict==='pass'?'✅ 通过':'❌ 打回';
+            document.getElementById('vreason').textContent=s.reason;
+            prog.children[i].classList.add('done');
+            document.getElementById('nextBtn').disabled=false;document.getElementById('nextBtn').textContent=(i>=STEPS.length-1)?'▶ 看总结':'▶ 下一个 Skill';
+            busy=false;
+          },450);
+        });
+      },1000);
+    });
+  },780);
 }
-function endShow(){busy=true;showView('end');lightWF(5);document.querySelectorAll('.wstage').forEach(e=>e.classList.add('done'));
-  document.getElementById('urlbar').textContent='工作流 · 完成';document.getElementById('rnd').textContent='42';
-  document.getElementById('verify').innerHTML='<div class="vf-foot">同一套循环跑了 42 遍,每条要求都被<b>真人/真实用户</b>验过、判过。提示词能抄,<b>工作流和判你的人抄不走</b>——这就是 12 道关。</div>';
+function endShow(){busy=true;showView('end');document.querySelectorAll('.skill-chip').forEach(c=>{c.classList.remove('cur','feeding');c.classList.add('done');});
+  document.getElementById('skno').textContent='12 / 12 · 全部喂入';document.getElementById('sknm').textContent='工作流跑通';
+  document.getElementById('urlbar').textContent='12 Skill 工作流 · 完成';
+  document.getElementById('verify').innerHTML='<div class="vf-foot">12 个 Skill 全部喂入,每个都跑了完整工作流、被真人判过。<b>提示词谁都会写,这 12 个 Skill + 判你的人,抄不走。</b>这就是 12 道关。</div>';
   document.getElementById('nextBtn').textContent='✓ 完成';document.getElementById('nextBtn').disabled=true;busy=false;}
-function resetAll(){i=-1;busy=false;rnd=0;log.innerHTML='';buildProg();document.querySelectorAll('.wstage').forEach(e=>e.classList.remove('active','pass','reject','done'));
-  document.getElementById('cur').textContent='0';document.getElementById('rnd').textContent='0';
+function resetAll(){i=-1;busy=false;log.innerHTML='';buildDock();buildProg();
+  document.getElementById('cur').textContent='0';document.getElementById('skno').textContent='SKILL — / 12';document.getElementById('sknm').textContent='准备开始';
   document.getElementById('urlbar').textContent='本地预览 · 还没动手';document.getElementById('urlbar').classList.remove('live');
-  document.getElementById('verify').innerHTML='<div class="vf-foot" id="vfoot0">点「下一步」——看每个提示词里的<b>每一条要求,怎么被逐维验证、被真人判过</b>。提示词谁都会写,这套工作流才是壁垒。</div>';
+  document.getElementById('verify').innerHTML='<div class="vf-foot">点「下一步」——每进一关,先<b>喂入一个 Skill</b>,再让它的每条标准被逐维验证、被真人判过。</div>';
   document.getElementById('nextBtn').disabled=false;document.getElementById('nextBtn').textContent='▶ 开始';
-  pvbody.innerHTML=`<div class="pv-stage on" style="display:flex;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--ink-4)"><div><div style="font-family:var(--serif);font-size:16px;color:var(--ink-3);margin-bottom:8px">右边会一关一关长出一个作品</div><div style="font-size:12.5px">但重点看下面:每条要求怎么被验、被谁判 →</div></div></div>`;
+  pvbody.innerHTML=`<div class="pv-stage on" style="display:flex;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--ink-4)"><div><div style="font-family:var(--serif);font-size:16px;color:var(--ink-3);margin-bottom:8px">上面 12 个格子 = 我的 12 个 Skill</div><div style="font-size:12.5px">每点一次,喂入一个 Skill,看它怎么跑工作流 →</div></div></div>`;
 }
-resetAll();
+buildDock();resetAll();
 document.addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='ArrowRight'){e.preventDefault();nextStep();}});
 </script>
 </body>
