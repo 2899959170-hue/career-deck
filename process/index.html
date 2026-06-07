@@ -75,6 +75,21 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-
 .judge .jk b{display:block;font-family:var(--sans);font-size:13px;color:#e0b54a;}
 .judge .jt{font-size:14px;line-height:1.6;color:#ede7da;align-self:center;}
 .judge .jt b{color:#e0b54a;}.judge .jt .none{color:#8a8278;}
+/* 过关验收台 */
+.gate{display:grid;grid-template-columns:1.15fr .85fr;gap:0;background:var(--paper);border:1px solid var(--line-2);border-radius:10px;margin-top:10px;flex-shrink:0;overflow:hidden;box-shadow:0 6px 20px -14px rgba(0,0,0,.3);}
+.gate-l{padding:11px 15px;}
+.gate-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;color:var(--accent);margin-bottom:7px;text-transform:uppercase;}
+.rubric{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.rubric li{font-size:12.5px;line-height:1.4;color:var(--ink-3);}
+.rubric li.ok{color:var(--green);}.rubric li.no{color:var(--accent);font-weight:500;}
+.gate-r{padding:11px 15px;border-left:1px solid var(--line);background:#fbf9f3;display:flex;flex-direction:column;gap:6px;}
+.judge-by{font-size:11px;color:var(--ink-3);}.judge-by b{color:var(--ink);font-size:12.5px;}
+.judge-by .tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.1em;color:var(--gold);display:block;margin-bottom:2px;}
+.verdict{align-self:flex-start;font-family:var(--cond);font-weight:700;font-size:16px;padding:3px 13px;border-radius:6px;}
+.verdict.pass{color:#fff;background:var(--green);}.verdict.reject{color:#fff;background:var(--accent);}
+.reason{font-size:11.5px;color:var(--ink-3);line-height:1.5;}
+.gate-foot{grid-column:1/-1;border-top:1px dotted var(--line-2);padding:8px 15px;font-size:12px;color:var(--ink-3);font-style:italic;background:var(--bg);}
+.gate-foot b{color:var(--accent);font-style:normal;}
 .ctrl{display:flex;align-items:center;gap:14px;margin-top:9px;flex-shrink:0;}
 .progress{flex:1;display:flex;gap:4px;}
 .progress i{flex:1;height:4px;background:var(--line);border-radius:2px;transition:background .4s;}
@@ -169,7 +184,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-
       </div>
     </div>
   </div>
-  <div class="judge"><div class="jk">这一步<br><b>判断点</b></div><div class="jt" id="judge"><span class="none">点「下一步」,看每一步真正难在哪 —— 难的不是 AI,是你得做的判断。</span></div></div>
+  <div class="gate" id="gate"><div class="gate-foot">点「下一步」——你会看到:<b>每一步都有一个不含糊的验收标准 + 一个专业的人或真实用户判你过没过。</b>这,才是一个人 + AI 给不了的。</div></div>
   <div class="ctrl">
     <span class="steplab">第 <b id="cur">0</b> / <span id="tot">14</span> 节点</span>
     <span class="progress" id="prog"></span>
@@ -372,6 +387,32 @@ const ENDVIEW=`<div class="endcard"><div class="big">这只是 12 步里的<em>�
   <div class="row"><div><div class="n">40+</div><div class="l">轮反复</div></div><div><div class="n">3</div><div class="l">次打回/报错/被否</div></div><div><div class="n">6</div><div class="l">/12 步</div></div></div>
   <div class="note">光这一段就含:<b>调研、评分模型设计、几十轮调试、陌生人验证、接后端数据、上线、翻简历</b>——没一步是“一句话搞定”。<br><br>翻牌、雷达、选种、踩点、立面、作品竞选,今晚还没走。<br>难的从来不是 AI,是<b>每一步:砍什么、听谁、改哪句、怎么讲</b>。这些判断,只能在被一次次打回里长出来。</div></div>`;
 
+/* 每步的「过关验收」:不含糊的标准(带阈值)+ 谁来判 + 通过/打回 */
+const GATES=[
+{by:'专业导师',byTag:'方向 / 调研评审',verdict:'pass',rubric:[[1,'痛点有 ≥3 个公开求助实例'],[1,'竞品 ≥3 个,且能说出各自缺口'],[1,'≥5 条目标用户原话'],],reason:'标准达到 → 放行,可以动手。'},
+{by:'专业导师',byTag:'第一版功能关',verdict:'pass',rubric:[[1,'能运行、不报错'],[1,'确实只有 1 个核心功能'],[1,'用户操作 ≤ 3 步'],],reason:'第一版达标(丑没关系,先过功能关)。'},
+{by:'专业导师',byTag:'聚焦关',verdict:'reject',rubric:[[0,'功能数 = 1(多一个就打回)'],[0,'没有多余入口'],],reason:'它擅自加到 5 个功能 → 打回重砍。新手最爱在这糊弄自己。'},
+{by:'专业导师',byTag:'诊断质量关',verdict:'pass',rubric:[[1,'每条建议含「具体改什么 + 为什么」'],[1,'建议 ≤ 3 条'],[1,'没有"正确废话"'],],reason:'诊断可执行 → 过。'},
+{by:'资深内容运营导师',byTag:'评分模型关',verdict:'pass',rubric:[[1,'每个维度的打分规则能一句话解释'],[1,'没有"综合评估"这类黑箱词'],[1,'能讲给面试官听'],],reason:'模型可解释 → 过。这是有没有深度的分水岭。'},
+{by:'专业导师',byTag:'调试关',verdict:'pass',rubric:[[1,'报错清零'],[1,'改动只限报错处,未波及其他'],],reason:'定位准、改动小 → 过。'},
+{by:'专业导师',byTag:'呈现关',verdict:'pass',rubric:[[1,'3 秒看懂分数与结论'],[1,'检测到的信号可见'],],reason:'信息层级清楚 → 过。'},
+{by:'专业导师',byTag:'移动端 / 质感关',verdict:'pass',rubric:[[1,'375px 宽不横向滚动'],[1,'无默认蓝/紫渐变模板感'],[1,'首屏一句话说清用途'],],reason:'移动端与质感达标 → 过。'},
+{by:'10 位真实陌生用户',byTag:'市场验真关',verdict:'reject',rubric:[[0,'≥8 人 3 秒看懂用途(实测仅 3 人)'],[0,'≥6 人愿意再用'],[0,'能说出一句话价值'],],reason:'真实用户没看懂、说不清价值 → 打回。朋友夸十句,不如这一盆冷水。'},
+{by:'真实用户复测',byTag:'磨刃关',verdict:'pass',rubric:[[1,'复测 ≥8 人 3 秒看懂'],[1,'改动只针对真实卡点,不是自己想加'],],reason:'复测达标 → 过。'},
+{by:'专业导师',byTag:'数据深度关',verdict:'pass',rubric:[[1,'有真实样本量(不是编的数)'],[1,'统计口径可追溯'],],reason:'数据可信 → 过。面试能讲"62% 栽在情绪钩子"。'},
+{by:'专业导师抽查',byTag:'上线关',verdict:'pass',rubric:[[1,'陌生设备能打开'],[1,'手机能打开'],[1,'链接可分享'],],reason:'可公开访问 → 过。'},
+{by:'资深 HR',byTag:'简历关',verdict:'pass',rubric:[[1,'HR 10 秒说出"证明什么岗位能力"'],[1,'含量化结果'],[1,'含可点开链接'],],reason:'(初稿被 HR 打回过一次:看不出岗位能力。这是改后 → 过。)'},
+{by:'导师模拟面 + AI 压测',byTag:'面试关',verdict:'pass',rubric:[[1,'8 问能稳答 ≥6 个'],[1,'3 个弱点都有具体改法'],],reason:'扛得住追问 → 过。'},
+];
+function renderGate(idx){const g=GATES[idx],s=STEPS[idx];
+  const rub=g.rubric.map(r=>`<li class="${r[0]?'ok':'no'}">${r[0]?'✓':'✗'} ${r[1]}</li>`).join('');
+  const vc=g.verdict==='pass'?'pass':'reject',vt=g.verdict==='pass'?'✅ 通过':'❌ 打回';
+  document.getElementById('gate').innerHTML=
+   `<div class="gate-l"><div class="gate-h">这一步的验收标准 · 不含糊(skill 级)</div><ul class="rubric">${rub}</ul></div>`+
+   `<div class="gate-r"><div class="judge-by"><span class="tag">${g.byTag}</span>判官 · <b>${g.by}</b></div><div class="verdict ${vc}">${vt}</div><div class="reason">${g.reason}</div></div>`+
+   `<div class="gate-foot">🧠 ${s.judge}</div>`;
+}
+
 let i=-1,busy=false;
 const log=document.getElementById('log'),pvbody=document.getElementById('pvbody'),prog=document.getElementById('prog');
 function buildProg(){prog.innerHTML='';STEPS.forEach(()=>prog.appendChild(document.createElement('i')));}
@@ -400,10 +441,11 @@ function nextStep(){
       document.getElementById('urlbar').textContent=s.url;
       document.getElementById('urlbar').classList.toggle('live',s.view==='live');
       showView(s.view);
-      const st=stamp(s.status);if(st)pvbody.querySelector('.pv-stage').insertAdjacentHTML('beforeend',st);
-      const cls=s.status==='ok'?'done-ok':s.status==='back'?'done-back':'done-warn';
+      const vr=GATES[i].verdict, stype=vr==='reject'?'back':(s.status==='warn'?'warn':'ok');
+      const st=stamp(stype);if(st)pvbody.querySelector('.pv-stage').insertAdjacentHTML('beforeend',st);
+      const cls=vr==='reject'?'done-back':(s.status==='warn'?'done-warn':'done-ok');
       aiB.innerHTML=`<span class="${cls}">${s.done}</span>`;log.scrollTop=log.scrollHeight;
-      document.getElementById('judge').innerHTML=s.judge;
+      renderGate(i);
       document.getElementById('chip').innerHTML='✨ '+s.chip;
       prog.children[i].classList.add('done');
       document.getElementById('nextBtn').disabled=false;
@@ -414,12 +456,12 @@ function nextStep(){
 }
 function endShow(){busy=true;showView('end');visited=new Set(['翻牌','雷达','选种','踩点','造物','验真','磨刃','上线','翻译','嵌入']);curNode=null;renderMap();
   document.getElementById('urlbar').textContent='造物全过程 · 完成';document.getElementById('rclab').textContent='本场演示结束';
-  document.getElementById('judge').innerHTML='框架我能给你,提示词我也能给你,<b>但判断力抄不走</b>——它只能在一次次被否、被打回里长出来。这就是 12 道关在做的事。';
+  document.getElementById('gate').innerHTML='<div class="gate-foot">你看到了吗——<b>每一步都卡在一个不含糊的验收标准上,而判你过没过的,是专业导师或真实用户,不是 AI、更不是你自己。</b>提示词谁都抄得到;但"每一步的判断标准 + 那个卡你的人",才是 12 道关真正卖的东西。</div>';
   document.getElementById('nextBtn').textContent='✓ 完成';document.getElementById('nextBtn').disabled=true;busy=false;}
 function resetAll(){i=-1;busy=false;log.innerHTML='';visited=new Set(DONE_AT_START);curNode=null;renderMap();buildProg();
   document.getElementById('cur').textContent='0';document.getElementById('rclab').textContent='第一层已完成 · 准备进入「造物」';
   document.getElementById('urlbar').textContent='本地预览 · 还没动手';document.getElementById('urlbar').classList.remove('live');
-  document.getElementById('chip').innerHTML='';document.getElementById('judge').innerHTML='<span class="none">点「下一步」,看每一步真正难在哪 —— 难的不是 AI,是你得做的判断。</span>';
+  document.getElementById('chip').innerHTML='';document.getElementById('gate').innerHTML='<div class="gate-foot">点「下一步」——每一步都有:<b>不含糊的验收标准(skill 级)+ 专业的人 / 真实用户的判定</b>。这是一个人 + AI 给不了的。</div>';
   document.getElementById('nextBtn').disabled=false;document.getElementById('nextBtn').textContent='▶ 开始';
   pvbody.innerHTML=`<div class="pv-stage on" style="display:flex;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--ink-4)"><div><div style="font-family:var(--serif);font-size:17px;color:var(--ink-3);margin-bottom:8px">第一场你已翻出牌(第一层 ✓)</div><div style="font-size:13px">今晚演第二层「造物」——看一个零代码的人,怎么一轮轮把它逼出来 →</div></div></div>`;
 }
