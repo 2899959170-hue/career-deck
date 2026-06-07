@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>造物全过程 · Claude Code 演示</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Oswald:wght@600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#ece8dd;--paper:#fdfbf4;--ink:#16130f;--ink-2:#3a352e;--ink-3:#6b6457;--ink-4:#9a9384;
+  --line:#dcd6c7;--line-2:#c7c0ad;--accent:#b3372a;--accent-soft:#f3e9e5;--gold:#9a7b3f;--green:#2d6a4f;
+  --term:#14110d;--term-2:#1e1a15;
+  --serif:"Noto Serif SC",serif;--sans:"Noto Sans SC",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;--cond:"Oswald",var(--sans);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden;
+  background-image:radial-gradient(120% 80% at 50% 0%,rgba(255,253,247,.6),transparent 60%);}
+.stage{height:100vh;display:flex;flex-direction:column;padding:18px 22px 14px;}
+/* 顶栏 */
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0;}
+.top .brand{font-family:var(--serif);font-weight:900;font-size:20px;letter-spacing:-.01em;}
+.top .brand b{color:var(--accent);}
+.top .tagline{font-size:12.5px;color:var(--ink-3);margin-top:2px;font-family:var(--sans);}
+.top .meta{font-family:var(--mono);font-size:11px;color:var(--ink-4);letter-spacing:.1em;text-align:right;}
+.top .meta b{color:var(--accent);}
+/* 主区:左对话 右预览 */
+.main{flex:1;display:grid;grid-template-columns:0.84fr 1fr;gap:18px;min-height:0;}
+/* 左:终端/对话 */
+.term{background:var(--term);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px -20px rgba(0,0,0,.5);border:1px solid #000;}
+.term-bar{display:flex;align-items:center;gap:7px;padding:11px 14px;background:var(--term-2);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;}
+.term-bar .dot{width:11px;height:11px;border-radius:50%;}
+.term-bar .d1{background:#ff5f57;}.term-bar .d2{background:#febc2e;}.term-bar .d3{background:#28c840;}
+.term-bar .ttl{margin-left:8px;font-family:var(--mono);font-size:11.5px;color:#8a8278;letter-spacing:.04em;}
+.term-bar .ttl b{color:#c9a227;}
+.log{flex:1;overflow-y:auto;padding:18px 18px 22px;scroll-behavior:smooth;}
+.log::-webkit-scrollbar{width:7px;}.log::-webkit-scrollbar-thumb{background:#3a342b;border-radius:4px;}
+.turn{margin-bottom:16px;}
+.who{font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-bottom:6px;display:flex;align-items:center;gap:7px;}
+.who.you{color:#7fb8a0;}.who.ai{color:#d9a441;}
+.who .av{width:16px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;}
+.who.you .av{background:#1f3d34;color:#7fb8a0;}.who.ai .av{background:#3a2e12;color:#d9a441;}
+.bubble{font-family:var(--mono);font-size:13.5px;line-height:1.75;color:#e9e3d6;white-space:pre-wrap;border-left:2px solid #2f2a22;padding-left:13px;}
+.turn.you .bubble{color:#f4efe3;}
+.turn.ai .bubble{color:#bdb6a6;border-left-color:#4a3c1a;}
+.caret{display:inline-block;width:8px;height:16px;background:#7fb8a0;vertical-align:-3px;animation:blink 1s steps(2) infinite;margin-left:1px;}
+@keyframes blink{50%{opacity:0;}}
+.building{display:flex;align-items:center;gap:8px;color:#d9a441;font-family:var(--mono);font-size:12.5px;}
+.building .sp{width:13px;height:13px;border:2px solid #4a3c1a;border-top-color:#d9a441;border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai .done{color:#7fb8a0;}
+/* 右:预览 */
+.preview{display:flex;flex-direction:column;min-height:0;}
+.pv-frame{flex:1;background:#fff;border-radius:12px;border:1px solid var(--line-2);overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 50px -22px rgba(0,0,0,.32);position:relative;}
+.pv-url{display:flex;align-items:center;gap:8px;padding:9px 14px;background:#f1efe8;border-bottom:1px solid var(--line);flex-shrink:0;}
+.pv-url .b{display:flex;gap:5px;}.pv-url .b i{width:9px;height:9px;border-radius:50%;background:#d4cdbd;}
+.pv-url .bar{flex:1;background:#fff;border:1px solid var(--line);border-radius:20px;font-family:var(--mono);font-size:11px;color:var(--ink-4);padding:4px 12px;text-align:center;}
+.pv-url .bar.live{color:var(--green);border-color:#bcd9cc;background:#f0f6f2;}
+.pv-body{flex:1;overflow-y:auto;position:relative;}
+.pv-stage{position:absolute;inset:0;opacity:0;transition:opacity .5s;padding:22px;overflow-y:auto;}
+.pv-stage.on{opacity:1;position:relative;}
+.changed{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,rgba(22,19,15,.92),rgba(22,19,15,.86));color:#fff;
+  padding:13px 18px;font-size:14px;display:flex;align-items:center;gap:10px;transform:translateY(110%);transition:transform .45s cubic-bezier(.2,1,.3,1);z-index:5;}
+.changed.show{transform:none;}
+.changed .tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--gold);background:rgba(212,164,65,.15);padding:3px 8px;border-radius:4px;flex-shrink:0;}
+.changed b{color:var(--gold);}
+/* 底部控制 */
+.ctrl{display:flex;align-items:center;gap:16px;margin-top:14px;flex-shrink:0;}
+.progress{flex:1;display:flex;gap:5px;}
+.progress i{flex:1;height:4px;background:var(--line);border-radius:2px;transition:background .4s;}
+.progress i.done{background:var(--accent);}
+.steplab{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);letter-spacing:.06em;min-width:104px;}
+.steplab b{color:var(--accent);}
+.next{background:var(--ink);color:#fbf8f0;border:none;border-radius:8px;padding:13px 30px;font-size:15px;font-weight:500;cursor:pointer;font-family:var(--sans);letter-spacing:.04em;transition:transform .12s,background .2s;}
+.next:hover{transform:translateY(-1px);background:#000;}
+.next:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.replay{background:transparent;border:1px solid var(--line-2);color:var(--ink-3);border-radius:8px;padding:13px 18px;font-size:13.5px;cursor:pointer;font-family:var(--sans);}
+.replay:hover{border-color:var(--ink);color:var(--ink);}
+.kbd{font-family:var(--mono);font-size:10.5px;color:var(--ink-4);}
+
+/* ===== 预览内的各阶段 mockup ===== */
+.mk{font-family:var(--sans);}
+.mk h3{margin-bottom:12px;}
+/* v1 丑版 */
+.v1{font-family:Times New Roman,serif;color:#222;}
+.v1 .t{font-size:19px;font-weight:bold;margin-bottom:14px;}
+.v1 input,.v1 textarea{width:100%;border:1px solid #999;padding:6px;margin-bottom:10px;font-family:inherit;font-size:14px;}
+.v1 button{background:#4a72d4;color:#fff;border:none;padding:7px 16px;font-size:14px;cursor:default;}
+.v1 .out{margin-top:14px;background:#eee;border:1px solid #ccc;padding:10px;font-size:13px;color:#444;}
+/* 通用品牌 mockup */
+.bk{font-family:var(--sans);}
+.bk .kk{font-family:var(--mono);font-size:9.5px;letter-spacing:.26em;color:var(--accent);text-transform:uppercase;}
+.bk .h{font-family:var(--serif);font-weight:900;font-size:23px;margin:8px 0 4px;letter-spacing:-.01em;}
+.bk .sub{font-size:12.5px;color:var(--ink-3);line-height:1.6;margin-bottom:16px;}
+.bk .lab{font-size:12px;color:var(--ink-2);margin:0 0 6px;font-weight:500;}
+.bk .in{border:1px solid var(--line-2);border-radius:7px;padding:10px 12px;background:#fff;font-size:13px;color:var(--ink-3);margin-bottom:12px;}
+.bk .btn{background:var(--ink);color:#fbf8f0;border-radius:7px;padding:11px;text-align:center;font-size:14px;font-weight:500;}
+.rcard{border:1px solid var(--line-2);border-radius:9px;overflow:hidden;margin-top:14px;background:var(--paper);}
+.rcard .rh{padding:13px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:13px;}
+.ring{width:54px;height:54px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--cond);font-weight:700;font-size:18px;color:#fff;}
+.ring i{font-style:normal;font-size:10px;opacity:.8;margin-left:1px;}
+.rh .vt{font-family:var(--serif);font-weight:700;font-size:16px;}
+.rh .vs{font-size:11.5px;color:var(--ink-3);margin-top:2px;}
+.dim{padding:9px 15px;border-bottom:1px dotted var(--line-2);}
+.dim .dr{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px;}
+.dim .dr b{font-family:var(--cond);}
+.dim .tk{height:5px;background:var(--bg);border:1px solid var(--line);border-radius:3px;overflow:hidden;}
+.dim .fl{height:100%;border-radius:3px;}
+.fixrow{display:flex;gap:9px;padding:9px 15px;font-size:12.5px;line-height:1.6;color:var(--ink-2);}
+.fixrow .n{font-family:var(--cond);font-weight:700;color:#fff;background:var(--accent);width:19px;height:19px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;}
+.fixrow b{color:var(--ink);}
+.chips{display:flex;flex-wrap:wrap;gap:5px;padding:0 15px 11px;}
+.chip{font-size:10.5px;padding:2px 7px;border-radius:4px;border:1px solid var(--line-2);color:var(--ink-3);}
+.chip.ok{color:var(--green);border-color:#bcd9cc;background:#f0f6f2;}
+.chip.no{color:var(--accent);border-color:#e6c5bf;background:var(--accent-soft);}
+.hist{margin-top:12px;}
+.hist .hl{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--ink-4);margin-bottom:6px;}
+.hrow{display:flex;gap:8px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:7px 10px;margin-bottom:5px;font-size:12px;}
+.hrow .hs{font-family:var(--cond);font-weight:700;width:30px;}
+.tag-soft{display:inline-block;font-size:10.5px;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:2px 7px;margin-bottom:8px;font-family:var(--mono);}
+/* 简历 */
+.resume{font-family:var(--sans);}
+.resume .doc{background:#fff;border:1px solid var(--line-2);border-radius:8px;padding:18px;box-shadow:0 4px 14px -8px rgba(0,0,0,.2);}
+.resume .nm{font-family:var(--serif);font-weight:700;font-size:17px;border-bottom:2px solid var(--ink);padding-bottom:7px;margin-bottom:11px;}
+.resume .sec{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--ink-4);margin:10px 0 7px;}
+.resume .line{height:8px;background:#eee;border-radius:3px;margin-bottom:7px;}
+.resume .line.s{width:60%;}
+.resume .bullet{background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 6px 6px 0;padding:11px 13px;font-size:13px;line-height:1.7;color:var(--ink);margin:8px 0;}
+.resume .bullet b{color:var(--accent);}
+/* 结束页 */
+.endcard{text-align:center;padding:30px 18px;}
+.endcard .big{font-family:var(--serif);font-weight:900;font-size:24px;line-height:1.35;margin-bottom:14px;}
+.endcard .big em{color:var(--accent);font-style:normal;}
+.endcard .row{display:flex;justify-content:center;gap:26px;margin:18px 0;}
+.endcard .row .n{font-family:var(--cond);font-weight:700;font-size:30px;color:var(--accent);}
+.endcard .row .l{font-size:11px;color:var(--ink-4);font-family:var(--mono);letter-spacing:.1em;margin-top:2px;}
+.endcard .note{font-size:13px;color:var(--ink-3);line-height:1.8;max-width:380px;margin:0 auto;}
+.endcard .note b{color:var(--ink);}
+
+@media(max-width:860px){.main{grid-template-columns:1fr;grid-template-rows:1fr 1fr;}body{overflow:auto;}.stage{height:auto;min-height:100vh;}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="top">
+    <div><div class="brand">造物全过程 · 从<b>一句话</b>到一个真作品</div><div class="tagline">一个零代码的普通人,用 Claude Code 一步步把想法做出来。每点一次「下一步」,看它怎么变。</div></div>
+    <div class="meta">CLAUDE CODE · LIVE<br><b id="who">普通文科生 / 零代码</b></div>
+  </div>
+
+  <div class="main">
+    <!-- 左:对话 -->
+    <div class="term">
+      <div class="term-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="ttl">claude code — <b>~/demo-标题诊断器</b></span></div>
+      <div class="log" id="log"></div>
+    </div>
+    <!-- 右:预览 -->
+    <div class="preview">
+      <div class="pv-frame">
+        <div class="pv-url"><span class="b"><i></i><i></i><i></i></span><span class="bar" id="urlbar">本地预览 · 还没做</span></div>
+        <div class="pv-body" id="pvbody"></div>
+        <div class="changed" id="changed"><span class="tag">这一步</span><span id="changedTxt">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctrl">
+    <span class="steplab">第 <b id="cur">0</b> / <span id="tot">7</span> 步</span>
+    <span class="progress" id="prog"></span>
+    <span class="kbd">空格 / → 下一步</span>
+    <button class="replay" onclick="resetAll()">↻ 重来</button>
+    <button class="next" id="nextBtn" onclick="nextStep()">▶ 开始 / 下一步</button>
+  </div>
+</div>
+
+<script>
+/* 每步:提示词(你打的)、building 文案、产出后 Claude 的回执、右侧 mockup、变化字幕、地址栏 */
+const STEPS=[
+{
+ prompt:`你是资深内容运营,擅长用 AI 做轻量产品。
+我要做一个能放进求职作品集的小工具:
+输入「标题 + 开头」→ 输出诊断 + 修改建议 + 改写版。
+只做一个核心功能,单页网页,操作不超过三步。
+先给第一版,做完停下等我反馈。`,
+ build:'正在写第一版完整代码…',
+ done:'✓ 已生成第一版(单文件网页)',
+ changed:'30 秒,<b>第一版能跑了</b>——但又丑又空,结果还是正确废话',
+ url:'file:///demo/index.html · 第一版',
+ view:'v1'
+},
+{
+ prompt:`结果太像正确废话。每条建议都要"具体改什么 + 为什么";
+再把界面美化成清爽浅色,结果做成卡片。只改这两块,别动别的。`,
+ build:'正在重写诊断逻辑 + 美化样式…',
+ done:'✓ 诊断更具体了,加了结果卡',
+ changed:'建议从"正确废话"变成 <b>改哪一句 + 为什么</b>;界面有质感了',
+ url:'file:///demo/index.html · 第 2 版',
+ view:'v2'
+},
+{
+ prompt:`功能太多了。只保留一个核心:标题 + 开头诊断。
+其他全删,我宁愿一个功能做到极好。`,
+ build:'正在砍功能、收敛界面…',
+ done:'✓ 砍到一个核心功能',
+ changed:'五个半成品 → <b>一个小而锋利的诊断器</b>',
+ url:'file:///demo/index.html · 聚焦版',
+ view:'v3'
+},
+{
+ prompt:`加三维打分:点击欲 / 信息量 / 情绪钩子,各 0-2 分,给总分和结论;
+把检测到的信号标出来;再加历史记录存浏览器,和一句"关于"。`,
+ build:'正在加打分逻辑 + 本地存储…',
+ done:'✓ 有分数、信号标注、历史记录了',
+ changed:'有了 <b>三维打分 + 信号 ✓✗ + 历史</b>,像个真测评了',
+ url:'file:///demo/index.html · 打分版',
+ view:'v4'
+},
+{
+ prompt:`做移动端适配,整体再收一遍:暖白底、克制、有质感,
+别像一眼就是 AI 的模板。只改样式,不动功能。`,
+ build:'正在适配手机 + 精修视觉…',
+ done:'✓ 手机不塌了,质感拉满',
+ changed:'<b>手机能看、视觉立住</b>——这就是能放进作品集的样子',
+ url:'file:///demo/index.html · 精修版',
+ view:'v5'
+},
+{
+ prompt:`告诉我最简单的免费部署方式,假设我零基础,
+一步步说,给我一个能分享的网址。`,
+ build:'正在部署到免费托管…',
+ done:'✓ 已上线,拿到公开链接',
+ changed:'作品<b>上线了</b>——HR 直接点开就能用的链接',
+ url:'https://你的名字.github.io/title-doctor/',
+ view:'v6'
+},
+{
+ prompt:`把这个作品,按"问题 + 作品 + 验证 + 迭代 + 链接 + 能力"
+写成一条能放进简历的项目描述。`,
+ build:'正在翻译成 HR 语言…',
+ done:'✓ 生成简历项目描述',
+ changed:'变成简历里 <b>一条 HR 会停下来看</b>的项目',
+ url:'简历 · 项目经历',
+ view:'v7'
+}
+];
+
+/* ===== 右侧各阶段 mockup ===== */
+const VIEWS={
+ v1:`<div class="mk v1"><div class="t">标题诊断</div>
+   <input value="我做了个小工具"><textarea>最近在准备秋招……</textarea>
+   <button>提交</button>
+   <div class="out">结果:你的标题还可以,建议优化一下措辞,提升吸引力,让内容更受欢迎。加油!</div></div>`,
+ v2:`<div class="mk bk"><span class="kk">作品化求职 · 内容工具</span><div class="h">标题与开头诊断器</div>
+   <div class="sub">发布前,先让它替你挑刺。</div>
+   <div class="lab">标题</div><div class="in">我做了个小工具</div>
+   <div class="lab">开头</div><div class="in">最近在准备秋招……</div>
+   <div class="btn">开始诊断</div>
+   <div class="rcard"><div class="rh"><div class="vt">诊断结果</div></div>
+     <div class="fixrow"><span class="n">1</span><div><b>加“给谁看”</b>:在标题点明人群,如「应届生｜…」。<br><span style="color:var(--ink-4)">为什么:读者一眼判断关我什么事。</span></div></div>
+     <div class="fixrow"><span class="n">2</span><div><b>加数字或钩子</b>:换成「3 个…的避坑清单」。</div></div></div></div>`,
+ v3:`<div class="mk bk"><span class="tag-soft">已砍到 1 个核心功能</span><span class="kk">作品化求职 · 内容工具</span><div class="h">标题与开头诊断器</div>
+   <div class="sub">输入标题 + 开头 → 诊断 + 改哪句 + 改写版。就这一件事,做到极好。</div>
+   <div class="lab">标题</div><div class="in">我做了个小工具</div>
+   <div class="lab">开头(选填)</div><div class="in">最近在准备秋招……</div>
+   <div class="btn">开始诊断</div></div>`,
+ v4:`<div class="mk bk"><div class="h" style="font-size:20px">诊断结果</div>
+   <div class="rcard"><div class="rh"><div class="ring" style="background:var(--accent)">2<i>/6</i></div><div><div class="vt">建议重写 · 2/6</div><div class="vs">现在大概率没人想点</div></div></div>
+     <div class="dim"><div class="dr"><span>点击欲</span><b style="color:var(--accent)">0/2</b></div><div class="tk"><span class="fl" style="width:0%;background:var(--accent)"></span></div></div>
+     <div class="chips"><span class="chip no">没数字</span><span class="chip no">缺钩子词</span></div>
+     <div class="dim"><div class="dr"><span>信息量</span><b style="color:var(--gold)">1/2</b></div><div class="tk"><span class="fl" style="width:50%;background:var(--gold)"></span></div></div>
+     <div class="chips"><span class="chip ok">点明人群 ✓</span><span class="chip no">话题太泛</span></div>
+     <div class="dim"><div class="dr"><span>情绪钩子</span><b style="color:var(--accent)">1/2</b></div><div class="tk"><span class="fl" style="width:50%;background:var(--accent)"></span></div></div></div>
+   <div class="hist"><div class="hl">最近诊断 / HISTORY</div>
+     <div class="hrow"><span class="hs" style="color:var(--accent)">2/6</span><span>我做了个小工具</span></div>
+     <div class="hrow"><span class="hs" style="color:var(--gold)">3/6</span><span>为什么你的简历总没人看</span></div></div></div>`,
+ v5:`<div class="mk bk" style="background:var(--paper);border:1px solid var(--line-2);border-radius:10px;padding:16px;box-shadow:0 8px 24px -14px rgba(0,0,0,.25)">
+   <span class="kk">作品化求职 · 内容工具</span><div class="h" style="font-size:22px">标题与开头诊断器</div>
+   <div class="sub">发布前,先让它替你挑刺:你的标题为什么没人想点?</div>
+   <div class="rcard"><div class="rh"><div class="ring" style="background:var(--green)">5<i>/6</i></div><div><div class="vt">可以发 · 5/6</div><div class="vs">标题和开头都立住了</div></div></div>
+     <div class="dim"><div class="dr"><span>点击欲</span><b style="color:var(--green)">2/2</b></div><div class="tk"><span class="fl" style="width:100%;background:var(--green)"></span></div></div>
+     <div class="chips"><span class="chip ok">含数字 ✓</span><span class="chip ok">有钩子「避坑」✓</span></div>
+     <div class="dim"><div class="dr"><span>情绪钩子</span><b style="color:var(--green)">2/2</b></div><div class="tk"><span class="fl" style="width:100%;background:var(--green)"></span></div></div>
+     <div class="chips"><span class="chip ok">戳痛点 ✓</span><span class="chip ok">对"你"说 ✓</span></div></div></div>`,
+ v6:`<div class="mk bk" style="text-align:center;padding-top:8px">
+   <div style="display:inline-block;background:#f0f6f2;border:1px solid #bcd9cc;color:var(--green);font-family:var(--mono);font-size:12px;border-radius:20px;padding:6px 16px;margin-bottom:16px">● 已上线 · 可公开访问</div>
+   <div style="background:#fff;border:1px solid var(--line-2);border-radius:9px;padding:14px;box-shadow:0 8px 24px -14px rgba(0,0,0,.25)">
+     <div style="font-family:var(--mono);font-size:12px;color:var(--green);background:#f0f6f2;border:1px solid #bcd9cc;border-radius:20px;padding:6px 10px;margin-bottom:12px">🔗 https://你的名字.github.io/title-doctor/</div>
+     <span class="kk">作品化求职 · 内容工具</span><div class="h" style="font-size:19px">标题与开头诊断器</div>
+     <div class="sub">任何人点开链接,就能用。</div>
+     <div class="btn">开始诊断</div></div>
+   <div style="font-size:12px;color:var(--ink-4);margin-top:14px;line-height:1.7">这个链接,就是你简历里能被 HR <b style="color:var(--ink-3)">直接点开</b>的那张牌。</div></div>`,
+ v7:`<div class="mk resume"><div class="doc">
+   <div class="nm">张同学 · 内容运营</div>
+   <div class="sec">教育经历</div><div class="line"></div><div class="line s"></div>
+   <div class="sec">项目 / 作品</div>
+   <div class="bullet">针对内容创作者<b>标题点击率低、开头吸引力弱</b>的问题,搭建 <b>AI 标题与开头诊断工具</b>,完成 <b>10 名陌生用户测试</b>,基于反馈将 5 个分散功能<b>收敛为 1 个核心诊断流程</b>,并<b>上线可访问作品链接</b>,证明用户洞察、内容判断与工具化交付能力。</div>
+   <div class="sec">技能</div><div class="line"></div><div class="line s"></div>
+ </div></div>`
+};
+const RINGFILL={v4:0,v5:[2,2]};
+
+const ENDVIEW=`<div class="mk endcard"><div class="big">从<em>一句话</em>,到一个<em>能点开的链接</em><br>+ 简历里一条 HR 会停下的项目</div>
+  <div class="row"><div><div class="n">1</div><div class="l">句话起步</div></div><div><div class="n">0</div><div class="l">行代码手写</div></div><div><div class="n">7</div><div class="l">步迭代</div></div></div>
+  <div class="note">你刚看到的,不是某个会代码的天才。是一个<b>普通文科生</b>,靠<b>一句一句的判断</b>,把想法逼成了作品。<br><br>难的从来不是 AI,是<b>每一步该砍什么、改哪句、怎么讲</b>——这,才是要练的。</div></div>`;
+
+/* ===== 播放逻辑 ===== */
+let i=-1, busy=false;
+const log=document.getElementById('log'), pvbody=document.getElementById('pvbody'), prog=document.getElementById('prog');
+function buildProg(){prog.innerHTML='';for(let k=0;k<STEPS.length;k++){const e=document.createElement('i');prog.appendChild(e);}}
+buildProg();
+document.getElementById('tot').textContent=STEPS.length;
+
+function addTurn(cls,who,av){const t=document.createElement('div');t.className='turn '+cls;t.innerHTML=`<div class="who ${cls}"><span class="av">${av}</span>${who}</div><div class="bubble"></div>`;log.appendChild(t);log.scrollTop=log.scrollHeight;return t.querySelector('.bubble');}
+function typewrite(el,text,cb){let n=0;el.innerHTML='';const car=document.createElement('span');car.className='caret';el.appendChild(car);
+  const sp=Math.max(12,Math.min(34,900/text.length));
+  const t=setInterval(()=>{n++;el.textContent=text.slice(0,n);el.appendChild(car);log.scrollTop=log.scrollHeight;if(n>=text.length){clearInterval(t);car.remove();cb&&cb();}},sp);}
+
+function showView(key){
+  pvbody.innerHTML=`<div class="pv-stage on">${key==='end'?ENDVIEW:VIEWS[key]}</div>`;
+  // 动画:打分条/环
+  if(key==='v4'){setTimeout(()=>{const f=pvbody.querySelector('.fl');},50);}
+}
+function flashChanged(html){const c=document.getElementById('changed');document.getElementById('changedTxt').innerHTML=html;c.classList.add('show');}
+function hideChanged(){document.getElementById('changed').classList.remove('show');}
+
+function nextStep(){
+  if(busy)return;
+  if(i>=STEPS.length-1){endShow();return;}
+  busy=true; hideChanged();
+  i++;
+  document.getElementById('cur').textContent=i+1;
+  document.getElementById('nextBtn').disabled=true;
+  const s=STEPS[i];
+  // 1) 你 打字
+  const youB=addTurn('you','你','▶');
+  typewrite(youB,s.prompt,()=>{
+    // 2) Claude building
+    const aiB=addTurn('ai','Claude Code','✦');
+    aiB.innerHTML=`<span class="building"><span class="sp"></span>${s.build}</span>`;
+    log.scrollTop=log.scrollHeight;
+    setTimeout(()=>{
+      // 3) 切预览 + 回执 + 字幕
+      document.getElementById('urlbar').textContent=s.url;
+      document.getElementById('urlbar').classList.toggle('live', s.view==='v6');
+      showView(s.view);
+      aiB.innerHTML=`<span class="done">${s.done}</span>`;
+      log.scrollTop=log.scrollHeight;
+      setTimeout(()=>flashChanged(s.changed),350);
+      prog.children[i].classList.add('done');
+      document.getElementById('nextBtn').disabled=false;
+      document.getElementById('nextBtn').textContent = (i>=STEPS.length-1)?'▶ 看结果':'▶ 下一步';
+      busy=false;
+    }, 1150);
+  });
+}
+
+function endShow(){
+  if(busy)return;busy=true;hideChanged();
+  document.getElementById('urlbar').textContent='造物全过程 · 完成';
+  showView('end');
+  document.getElementById('nextBtn').textContent='✓ 完成';
+  document.getElementById('nextBtn').disabled=true;
+  busy=false;
+}
+
+function resetAll(){i=-1;busy=false;log.innerHTML='';pvbody.innerHTML='';hideChanged();buildProg();
+  document.getElementById('cur').textContent='0';document.getElementById('urlbar').textContent='本地预览 · 还没做';document.getElementById('urlbar').classList.remove('live');
+  document.getElementById('nextBtn').disabled=false;document.getElementById('nextBtn').textContent='▶ 开始 / 下一步';
+  // 开场预览
+  pvbody.innerHTML=`<div class="pv-stage on" style="display:flex;align-items:center;justify-content:center;height:100%;text-align:center;color:var(--ink-4)"><div><div style="font-family:var(--serif);font-size:18px;color:var(--ink-3);margin-bottom:8px">右边这块,等会儿会一步步长出一个作品</div><div style="font-size:13px">点「开始」,看一个零代码的人怎么用一句话造东西 →</div></div></div>`;
+}
+resetAll();
+
+/* 键盘:空格 / → 下一步 */
+document.addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='ArrowRight'){e.preventDefault();nextStep();}});
+</script>
+</body>
+</html>
